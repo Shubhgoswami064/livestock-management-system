@@ -36,7 +36,9 @@ app.post('/api/signup', async (req, res) => {
         email,
         password,
         options: { 
-            data: { full_name: name } // Saves name directly to Auth Metadata
+            data: { full_name: name },
+            // This tells Supabase where to send the user after they click the link
+            emailRedirectTo: 'http://localhost:3000/login_signup' 
         }
     });
 
