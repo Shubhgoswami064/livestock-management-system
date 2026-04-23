@@ -31,7 +31,7 @@
             left: 0;
             width: 100%;
             height: 100vh;
-            background-image: url('MDbg.png');
+            background-image: url('back.png');
             background-size: cover;
             background-position: center;
             opacity: 1;
@@ -179,11 +179,7 @@
                         <div style="position: relative; height: 160px; width: 160px;">
                             <canvas id="herdChart"></canvas>
                         </div>
-                        <div style="display: flex; flex-direction: column; gap: 0.8rem; font-size: 0.875rem; font-weight: 600;">
-                            <span><i class="fas fa-circle" style="color:#046c4e;"></i> Cows</span>
-                            <span><i class="fas fa-circle" style="color:#3b82f6;"></i> Goats</span>
-                            <span><i class="fas fa-circle" style="color:#f59e0b;"></i> Sheep</span>
-                            <span><i class="fas fa-circle" style="color:#7c3aed;"></i> Buffalos</span>
+                        <div id="chart-legend" style="display: flex; flex-direction: column; gap: 0.8rem; font-size: 0.875rem; font-weight: 600;">
                         </div>
                     </div>
                 </div>
@@ -256,22 +252,38 @@
             actEl.innerText = Math.floor(baseActivity + (Math.random() * 10)) + "%";
         }
 
-        function updateHerdChart(chartData = [0, 0, 0, 0]) {
+        function updateHerdChart(chartLabels = ['Livestock'], chartData = [1]) {
             const ctx = document.getElementById('herdChart').getContext('2d');
             if (herdChart) herdChart.destroy();
+            
             const hasData = chartData.some(val => val > 0);
+            
+            // Generate distinct colors based on labels count
+            const baseColors = ['#046c4e', '#3b82f6', '#f59e0b', '#7c3aed', '#ef4444', '#10b981', '#6366f1'];
+            const bgColors = hasData ? chartLabels.map((_, i) => baseColors[i % baseColors.length]) : ['#e5e7eb'];
+
             herdChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Cows', 'Goats', 'Sheep', 'Buffalos'],
+                    labels: chartLabels,
                     datasets: [{
                         data: hasData ? chartData : [1],
-                        backgroundColor: hasData ? ['#046c4e', '#3b82f6', '#f59e0b', '#7c3aed'] : ['#e5e7eb'],
+                        backgroundColor: bgColors,
                         borderWidth: 0,
                     }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '82%' }
             });
+            
+            // Update legend UI dynamically
+            const legendContainer = document.getElementById('chart-legend');
+            if (hasData) {
+                legendContainer.innerHTML = chartLabels.map((label, index) => 
+                    `<span><i class="fas fa-circle" style="color:${bgColors[index]};"></i> ${label} (${chartData[index]})</span>`
+                ).join('');
+            } else {
+                legendContainer.innerHTML = `<span>No Data</span>`;
+            }
         }
 
         async function fetchRegistry() {
@@ -282,13 +294,10 @@
                 const tableBody = document.getElementById('registryTableBody');
 
                 if (response.ok && data.length > 0) {
-                    const counts = { cow: 0, goat: 0, sheep: 0, buffalo: 0 };
+                    const breedCounts = {};
                     tableBody.innerHTML = data.map(item => {
-                        const b = item.breed.toLowerCase();
-                        if (b.includes('cow')) counts.cow++;
-                        else if (b.includes('goat')) counts.goat++;
-                        else if (b.includes('sheep')) counts.sheep++;
-                        else if (b.includes('buffalo')) counts.buffalo++;
+                        const breed = item.breed || 'Unknown';
+                        breedCounts[breed] = (breedCounts[breed] || 0) + 1;
 
                         return `<tr>
                             <td>${item.tag_id}</td>
@@ -299,7 +308,7 @@
                         </tr>`;
                     }).join('');
 
-                    updateHerdChart([counts.cow, counts.goat, counts.sheep, counts.buffalo]);
+                    updateHerdChart(Object.keys(breedCounts), Object.values(breedCounts));
                     updateUIElements(data);
                 } else {
                     tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No livestock found.</td></tr>';
