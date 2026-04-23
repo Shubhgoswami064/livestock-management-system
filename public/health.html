@@ -441,10 +441,10 @@
         <main class="flex-1">
             <header>
                 <div style="display: flex; align-items: center; gap: 1rem;">
-                    <button id="menu-btn" style="background:none; border:none; cursor:pointer; color:#4b5563;">
-                        <i class="fas fa-bars" style="font-size:1.25rem;"></i>
+                    <button id="menu-btn" style="background: none; border: none; cursor: pointer; color: var(--text-dark); display: flex; align-items: center; padding: 0;">
+                        <i class="fas fa-bars" style="font-size: 1.25rem;"></i>
                     </button>
-                    <div style="color: var(--dark-brown); font-weight: 800; font-size: 1.25rem;">Health Records</div>
+                    <div style="color: var(--text-dark); font-weight: 800; font-size: 1.25rem; margin: 0;">Health Records</div>
                 </div>
 
                 <div style="display: flex; align-items: center; gap: 1rem; position: relative;">
@@ -476,7 +476,7 @@
 
                     <a href="MainDash.html">
                         <img src="https://ui-avatars.com/api/?name=Farmer+Joe&background=064e3b&color=fff"
-                             style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--text-main);" alt="Profile">
+                             style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--text-main);" alt="Profile" id="profile-btn">
                     </a>
                 </div>
             </header>
@@ -762,7 +762,41 @@ function hideSupportInfo() {
             });
         }
 
-        window.addEventListener('load', initAnimations);
+        const cachedAvatar = localStorage.getItem('cachedAvatarUrl');
+        if (cachedAvatar) {
+            const profileBtn = document.getElementById('profile-btn');
+            if (profileBtn) profileBtn.src = cachedAvatar;
+        }
+
+        async function fetchProfileAvatar() {
+            try {
+                const res = await fetch('/api/profile');
+                const profile = await res.json();
+                
+                let avatarName = 'F';
+                if (res.ok && profile) {
+                    const fullName = (profile.first_name || profile.last_name) 
+                        ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() 
+                        : '';
+                    if (fullName) {
+                        avatarName = fullName;
+                    }
+                }
+                
+                const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(avatarName)}&background=064e3b&color=fff`;
+                const profileBtn = document.getElementById('profile-btn');
+                if (profileBtn) profileBtn.src = avatarUrl;
+                
+                localStorage.setItem('cachedAvatarUrl', avatarUrl);
+            } catch (err) {
+                console.error('Error fetching profile avatar:', err);
+            }
+        }
+
+        window.addEventListener('load', () => {
+            initAnimations();
+            fetchProfileAvatar();
+        });
     </script>
 </body>
 </html>

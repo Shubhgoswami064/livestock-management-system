@@ -200,10 +200,10 @@ body {
 
         <!-- PROFILE HEADER -->
         <div class="profile-header">
-            <img src="https://ui-avatars.com/api/?name=Farmer+Joe">
+            <img src="https://ui-avatars.com/api/?name=Farmer+Joe" id="profile-img">
             <div>
-                <h3>Farmer John Doe</h3>
-                <p style="font-size:0.8rem; color:#777;">Farm ID: #IN-9921</p>
+                <h3 id="profile-name">Farmer John Doe</h3>
+                <p id="profile-farm-id" style="font-size:0.8rem; color:#777;">Farm ID: #IN-9921</p>
             </div>
         </div>
 
@@ -212,22 +212,22 @@ body {
 
             <div class="input-group">
                 <label>First Name</label>
-                <input type="text" placeholder="John">
+                <input type="text" id="firstNameInput" placeholder="John">
             </div>
 
             <div class="input-group">
                 <label>Last Name</label>
-                <input type="text" placeholder="Doe">
+                <input type="text" id="lastNameInput" placeholder="Doe">
             </div>
 
             <div class="input-group">
                 <label>Age</label>
-                <input type="number" placeholder="32">
+                <input type="number" id="ageInput" placeholder="32">
             </div>
 
             <div class="input-group">
                 <label>Gender</label>
-                <select>
+                <select id="genderInput">
                     <option>Male</option>
                     <option>Female</option>
                     <option>Other</option>
@@ -236,17 +236,17 @@ body {
 
             <div class="input-group full">
                 <label>Location</label>
-                <input type="text" placeholder="Punjab, India">
+                <input type="text" id="locationInput" placeholder="Punjab, India">
             </div>
 
             <div class="input-group">
                 <label>Farmer ID</label>
-                <input type="text" placeholder="IN-9921">
+                <input type="text" id="farmIdInput" placeholder="IN-9921">
             </div>
 
             <div class="input-group">
                 <label>Contact Number</label>
-                <input type="text" placeholder="+91 XXXXX XXXXX">
+                <input type="text" id="contactInput" placeholder="+91 XXXXX XXXXX">
             </div>
 
         </div>
@@ -261,9 +261,87 @@ body {
 </div>
 
 <script>
-function saveProfile() {
-    alert("Profile Updated Successfully!");
-    window.location.href = "MainDash.html";
+// Apply cached data immediately to prevent flicker
+const cachedAvatar = localStorage.getItem('cachedAvatarUrl');
+const cachedName = localStorage.getItem('cachedFullName');
+const cachedFarmId = localStorage.getItem('cachedFarmId');
+
+if (cachedAvatar) {
+    const profileImg = document.getElementById('profile-img');
+    if (profileImg) profileImg.src = cachedAvatar;
+}
+if (cachedName) {
+    const profileName = document.getElementById('profile-name');
+    if (profileName) profileName.textContent = cachedName;
+}
+if (cachedFarmId) {
+    const profileFarmId = document.getElementById('profile-farm-id');
+    if (profileFarmId) profileFarmId.textContent = `Farm ID: #${cachedFarmId}`;
+}
+
+window.addEventListener('load', async () => {
+    try {
+        const res = await fetch('/api/profile');
+        const profile = await res.json();
+        
+        if (profile) {
+            if (profile.first_name) document.getElementById('firstNameInput').value = profile.first_name;
+            if (profile.last_name) document.getElementById('lastNameInput').value = profile.last_name;
+            if (profile.age) document.getElementById('ageInput').value = profile.age;
+            if (profile.gender) document.getElementById('genderInput').value = profile.gender;
+            if (profile.location) document.getElementById('locationInput').value = profile.location;
+            if (profile.farm_id) document.getElementById('farmIdInput').value = profile.farm_id;
+            if (profile.contact_number) document.getElementById('contactInput').value = profile.contact_number;
+            
+            const fullName = (profile.first_name || profile.last_name) 
+                ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() 
+                : 'Farmer';
+                
+            document.getElementById('profile-name').textContent = fullName;
+            document.getElementById('profile-farm-id').textContent = profile.farm_id ? `Farm ID: #${profile.farm_id}` : 'Farm ID: N/A';
+            
+            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=064e3b&color=fff`;
+            document.getElementById('profile-img').src = avatarUrl;
+            
+            // Cache the data
+            localStorage.setItem('cachedFullName', fullName);
+            localStorage.setItem('cachedFarmId', profile.farm_id || '');
+            localStorage.setItem('cachedAvatarUrl', avatarUrl);
+        }
+    } catch (err) {
+        console.error('Error loading profile:', err);
+    }
+});
+
+async function saveProfile() {
+    const payload = {
+        first_name: document.getElementById('firstNameInput').value,
+        last_name: document.getElementById('lastNameInput').value,
+        age: parseInt(document.getElementById('ageInput').value) || null,
+        gender: document.getElementById('genderInput').value,
+        location: document.getElementById('locationInput').value,
+        farm_id: document.getElementById('farmIdInput').value,
+        contact_number: document.getElementById('contactInput').value
+    };
+
+    try {
+        const res = await fetch('/api/profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        
+        if (res.ok) {
+            alert("Profile Updated Successfully!");
+            window.location.href = "MainDash.html";
+        } else {
+            const data = await res.json();
+            alert("Error: " + data.error);
+        }
+    } catch (err) {
+        console.error('Error saving profile:', err);
+        alert("Failed to connect to server.");
+    }
 }
 </script>
 
