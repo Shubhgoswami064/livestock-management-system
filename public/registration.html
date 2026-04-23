@@ -53,7 +53,10 @@
             display: flex;
             flex-direction: column;
             border-right: 1.5px solid var(--glass-border);
+            transition: transform 0.3s ease;
         }
+
+        #sidebar.collapsed { transform: translateX(-100%); }
 
         .logo { 
             display: flex; 
@@ -74,7 +77,13 @@
         .nav-link.active { background: rgba(74, 102, 77, 0.1); color: var(--primary-light); }
 
         /* --- Main Content --- */
-        main { flex: 1; margin-left: var(--sidebar-width); min-height: 100vh; }
+        main { 
+            flex: 1; 
+            margin-left: var(--sidebar-width); 
+            min-height: 100vh; 
+            transition: margin-left 0.3s ease; 
+        }
+        main.expanded { margin-left: 0; }
 
         header {
             position: sticky;
@@ -165,20 +174,26 @@
         <main>
             <header>
                 <div style="display: flex; align-items: center; gap: 12px;">
+                    <button id="menu-btn" style="background:none; border:none; cursor:pointer; color:#4b5563;">
+                        <i class="fas fa-bars" style="font-size:1.25rem;"></i>
+                    </button>
                     <span style="font-weight: 800; color: var(--text-dark); font-size: 1.4rem;">Register Livestock</span>
                 </div>
                 <a href="MainDash.html">
-                    <img src="https://ui-avatars.com/api/?name=Shubh+Goswami&background=4a664d&color=fff" class="profile-img" alt="User Profile">
+                    <img src="https://ui-avatars.com/api/?name=Shubh+Goswami&background=4a664d&color=fff" class="profile-img" alt="User Profile" id="profile-btn">
                 </a>
             </header>
 
             <div class="content-wrapper">
-                <div class="form-card">
+                <div class="form-card" style="position: relative;">
+                    <a href="liveStock.html" style="position: absolute; top: 1.5rem; right: 1.5rem; color: #9ca3af; font-size: 1.25rem; transition: color 0.3s; z-index: 10;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#9ca3af'" title="Cancel Registration">
+                        <i class="fas fa-times"></i>
+                    </a>
                     <h2 style="margin-bottom: 1.5rem; font-size: 1.25rem; color: var(--primary);">Animal Information</h2>
-                    <form onsubmit="event.preventDefault(); alert('Livestock Registration Successful!');">
+                    <form id="registrationForm">
                         <div class="form-group">
                             <label>Species Type</label>
-                            <select>
+                            <select id="speciesInput">
                                 <option>Cattle (Cow/Buffalo)</option>
                                 <option>Goat/Sheep</option>
                                 <option>Swine</option>
@@ -186,24 +201,82 @@
                         </div>
                         <div class="form-group">
                             <label>Tag ID Number</label>
-                            <input type="text" placeholder="e.g. A-7788-X">
+                            <input type="text" id="tagInput" placeholder="e.g. A-7788-X" required>
                         </div>
                         <div class="form-group">
                             <label>Breed / Variety</label>
-                            <input type="text" placeholder="e.g. Sahiwal, Holstein">
+                            <input type="text" id="breedInput" placeholder="e.g. Sahiwal, Holstein" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Weight (kg)</label>
+                            <input type="number" id="weightInput" placeholder="e.g. 500" required>
                         </div>
                         <div class="form-group">
                             <label>Date of Birth</label>
-                            <input type="date">
+                            <input type="date" id="dobInput">
                         </div>
-                        <button type="submit" class="btn-submit">Confirm Registration</button>
+                        <button type="submit" class="btn-submit" id="submitBtn">Confirm Registration</button>
                     </form>
+
+                    <script>
+                        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+                            e.preventDefault();
+                            const submitBtn = document.getElementById('submitBtn');
+                            submitBtn.textContent = 'Registering...';
+                            submitBtn.disabled = true;
+
+                            const tag_id = document.getElementById('tagInput').value;
+                            const breed = document.getElementById('breedInput').value;
+                            const weight = document.getElementById('weightInput').value;
+                            const status = 'Healthy'; // Default status for new animal
+                            
+                            // Get user session from localStorage (if you have one) or pass null
+                            // Right now our backend just expects the data
+                            
+                            try {
+                                const response = await fetch('/api/livestock', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ tag_id, breed, weight, status })
+                                });
+                                
+                                const data = await response.json();
+                                
+                                if (response.ok) {
+                                    alert('Livestock Registration Successful!');
+                                    window.location.href = 'farmerDash.html'; // Redirect to overview
+                                } else {
+                                    alert('Error: ' + data.error);
+                                }
+                            } catch (error) {
+                                console.error('Error:', error);
+                                alert('Failed to connect to server.');
+                            } finally {
+                                submitBtn.textContent = 'Confirm Registration';
+                                submitBtn.disabled = false;
+                            }
+                        });
+                    </script>
                 </div>
             </div>
         </main>
     </div>
 
     <script>
+        const menuBtn = document.getElementById('menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.querySelector('main');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('collapsed');
+            if (mainContent) {
+                mainContent.classList.toggle('expanded');
+            }
+        }
+        if (menuBtn) {
+            menuBtn.addEventListener('click', toggleSidebar);
+        }
+
         function showSupportInfo() {
             const container = document.getElementById('support-content');
             container.innerHTML = `
@@ -229,6 +302,39 @@
                 </button>
             `;
         }
+
+        const cachedAvatar = localStorage.getItem('cachedAvatarUrl');
+        if (cachedAvatar) {
+            const profileBtn = document.getElementById('profile-btn');
+            if (profileBtn) profileBtn.src = cachedAvatar;
+        }
+
+        async function fetchProfileAvatar() {
+            try {
+                const res = await fetch('/api/profile');
+                const profile = await res.json();
+                
+                let avatarName = 'F';
+                if (res.ok && profile) {
+                    const fullName = (profile.first_name || profile.last_name) 
+                        ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() 
+                        : '';
+                    if (fullName) {
+                        avatarName = fullName;
+                    }
+                }
+                
+                const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(avatarName)}&background=064e3b&color=fff`;
+                const profileBtn = document.getElementById('profile-btn');
+                if (profileBtn) profileBtn.src = avatarUrl;
+                
+                localStorage.setItem('cachedAvatarUrl', avatarUrl);
+            } catch (err) {
+                console.error('Error fetching profile avatar:', err);
+            }
+        }
+
+        window.addEventListener('load', fetchProfileAvatar);
     </script>
 </body>
 </html>

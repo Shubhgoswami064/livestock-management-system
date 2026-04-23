@@ -61,6 +61,81 @@ app.post('/api/login', async (req, res) => {
         }
     });
 });
+
+// --- LIVESTOCK API ROUTES ---
+
+// GET API to fetch all livestock
+app.get('/api/livestock', async (req, res) => {
+    const { data, error } = await supabase
+        .from('livestock')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) return res.status(400).json({ error: error.message });
+    res.json(data);
+});
+
+// POST API to add new livestock
+app.post('/api/livestock', async (req, res) => {
+    const { tag_id, breed, weight, farmer_id, status } = req.body;
+
+    const { data, error } = await supabase
+        .from('livestock')
+        .insert([{ tag_id, breed, weight, farmer_id, status }])
+        .select();
+
+    if (error) return res.status(400).json({ error: error.message });
+    res.status(201).json({ message: 'Livestock added successfully!', livestock: data[0] });
+});
+// --- PROFILE API ROUTES ---
+// GET API to fetch the farmer profile
+app.get('/api/profile', async (req, res) => {
+    const { data, error } = await supabase
+        .from('farmer_profiles')
+        .select('*')
+        .limit(1)
+        .single(); // Assuming 1 global profile for now
+
+    if (error && error.code !== 'PGRST116') return res.status(400).json({ error: error.message });
+    res.json(data || null);
+});
+
+// POST API to update the farmer profile
+app.post('/api/profile', async (req, res) => {
+    const { first_name, last_name, age, gender, location, farm_id, contact_number } = req.body;
+
+    // Check if we already have a profile to get its ID
+    let { data: existing } = await supabase.from('farmer_profiles').select('id').limit(1).single();
+    let userId = existing?.id;
+
+    if (!userId) {
+        // Create a dummy auth user to satisfy the foreign key constraint if none exists
+        const { data: authData, error: authErr } = await supabase.auth.signUp({
+            email: `farmer_${Date.now()}@farmtrack.com`,
+            password: 'securePassword123'
+        });
+        if (authErr) return res.status(400).json({ error: authErr.message });
+        userId = authData.user.id;
+    }
+
+    const { data, error } = await supabase
+        .from('farmer_profiles')
+        .upsert([{ 
+            id: userId,
+            first_name, 
+            last_name, 
+            age, 
+            gender, 
+            location, 
+            farm_id, 
+            contact_number 
+        }])
+        .select();
+
+    if (error) return res.status(400).json({ error: error.message });
+    res.status(200).json({ message: 'Profile updated!', profile: data[0] });
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Server: http://localhost:${PORT}`);
