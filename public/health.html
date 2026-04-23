@@ -770,7 +770,10 @@ function hideSupportInfo() {
 
         async function fetchProfileAvatar() {
             try {
-                const res = await fetch('/api/profile');
+                const userId = localStorage.getItem('userId');
+                const res = await fetch('/api/profile', {
+                    headers: { 'user-id': userId || '' }
+                });
                 const profile = await res.json();
                 
                 let avatarName = 'F';

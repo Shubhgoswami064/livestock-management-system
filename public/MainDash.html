@@ -829,10 +829,17 @@
             Contact Agent
         </button>
     </div>
-            <div style="margin-top: auto; padding: 15px 20px; border-radius: 12px; font-weight: 600; font-size: 0.9rem; color: var(--text-dark); cursor: pointer; display: flex; align-items: center; gap: 15px; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(0, 0, 0, 0.05)'" onmouseout="this.style.background='transparent'" onclick="window.location.href='login_signup.html'">
+            <div style="margin-top: auto; padding: 15px 20px; border-radius: 12px; font-weight: 600; font-size: 0.9rem; color: var(--text-dark); cursor: pointer; display: flex; align-items: center; gap: 15px; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(0, 0, 0, 0.05)'" onmouseout="this.style.background='transparent'" onclick="handleLogout()">
                 <i class="fas fa-sign-out-alt" style="font-size: 1.1rem; width: 20px; text-align: center;"></i> LOGOUT
             </div>
         </aside>
+
+        <script>
+        function handleLogout() {
+            localStorage.clear();
+            window.location.href = 'login_signup.html';
+        }
+        </script>
 
         <!-- MAIN WRAPPER -->
         <div class="main-wrapper">
@@ -1280,7 +1287,11 @@ function hideSupportInfo() {
 }
         async function fetchLivestockCount() {
             try {
-                const response = await fetch('/api/livestock');
+                const userId = localStorage.getItem('userId');
+                if (!userId) { window.location.href = 'login_signup.html'; return; }
+                const response = await fetch('/api/livestock', {
+                    headers: { 'user-id': userId }
+                });
                 const data = await response.json();
                 if (response.ok) {
                     document.getElementById('mainDashAnimalCount').textContent = data.length;
@@ -1312,7 +1323,11 @@ function hideSupportInfo() {
 
         async function fetchProfile() {
             try {
-                const response = await fetch('/api/profile');
+                const userId = localStorage.getItem('userId');
+                if (!userId) { window.location.href = 'login_signup.html'; return; }
+                const response = await fetch('/api/profile', {
+                    headers: { 'user-id': userId }
+                });
                 const profile = await response.json();
                 
                 let avatarName = 'F'; // Default to F if no name

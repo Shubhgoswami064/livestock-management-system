@@ -478,6 +478,7 @@
         const result = await response.json();
         
         if (response.ok) {
+            localStorage.setItem('userId', result.user.id);
             showMsg('loginMsg', 'Success! Taking you to dashboard...', 'success');
             setTimeout(() => {
                 window.location.href = '/MainDash'; // Redirects to your dashboard
@@ -502,6 +503,7 @@
         const result = await response.json();
         
         if (response.ok) {
+            localStorage.setItem('userId', result.user.id);
             showMsg('signupMsg', 'Account created! You can now log in.', 'success');
             setTimeout(() => {
                 switchTab('login'); // Automatically switches them to the login tab

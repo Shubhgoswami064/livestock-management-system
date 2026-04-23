@@ -281,7 +281,11 @@ if (cachedFarmId) {
 
 window.addEventListener('load', async () => {
     try {
-        const res = await fetch('/api/profile');
+        const userId = localStorage.getItem('userId');
+        if (!userId) { window.location.href = 'login_signup.html'; return; }
+        const res = await fetch('/api/profile', {
+            headers: { 'user-id': userId }
+        });
         const profile = await res.json();
         
         if (profile) {
@@ -325,9 +329,14 @@ async function saveProfile() {
     };
 
     try {
+        const userId = localStorage.getItem('userId');
+        if (!userId) { window.location.href = 'login_signup.html'; return; }
         const res = await fetch('/api/profile', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'user-id': userId
+            },
             body: JSON.stringify(payload)
         });
         

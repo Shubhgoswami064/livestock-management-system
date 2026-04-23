@@ -458,7 +458,10 @@ html {
 
         async function fetchLivestock() {
             try {
-                const response = await fetch('/api/livestock');
+                const userId = localStorage.getItem('userId');
+                const response = await fetch('/api/livestock', {
+                    headers: { 'user-id': userId || '' }
+                });
                 const data = await response.json();
                 if (response.ok) {
                     // Map database fields to the frontend structure
@@ -661,7 +664,11 @@ function hideSupportInfo() {
 
         async function fetchProfileAvatar() {
             try {
-                const res = await fetch('/api/profile');
+                const userId = localStorage.getItem('userId');
+                if (!userId) { window.location.href = 'login_signup.html'; return; }
+                const res = await fetch('/api/profile', {
+                    headers: { 'user-id': userId }
+                });
                 const profile = await res.json();
                 
                 let avatarName = 'F';

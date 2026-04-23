@@ -234,9 +234,14 @@
                             // Right now our backend just expects the data
                             
                             try {
+                                const userId = localStorage.getItem('userId');
+                                if (!userId) { window.location.href = 'login_signup.html'; return; }
                                 const response = await fetch('/api/livestock', {
                                     method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
+                                    headers: { 
+                                        'Content-Type': 'application/json',
+                                        'user-id': userId
+                                    },
                                     body: JSON.stringify({ tag_id, breed, weight, status })
                                 });
                                 
@@ -311,7 +316,10 @@
 
         async function fetchProfileAvatar() {
             try {
-                const res = await fetch('/api/profile');
+                const userId = localStorage.getItem('userId');
+                const res = await fetch('/api/profile', {
+                    headers: { 'user-id': userId || '' }
+                });
                 const profile = await res.json();
                 
                 let avatarName = 'F';

@@ -41,7 +41,7 @@ app.post('/api/signup', async (req, res) => {
     });
 
     if (error) return res.status(400).json({ error: error.message });
-    res.json({ message: 'Signup successful!' });
+    res.json({ message: 'Signup successful!', user: data.user });
 });
 
 // LOGIN API
@@ -56,6 +56,7 @@ app.post('/api/login', async (req, res) => {
         message: 'Login successful', 
         session: data.session,
         user: {
+            id: data.user.id,
             name: data.user.user_metadata.full_name,
             email: data.user.email
         }
@@ -66,9 +67,13 @@ app.post('/api/login', async (req, res) => {
 
 // GET API to fetch all livestock
 app.get('/api/livestock', async (req, res) => {
+    const userId = req.headers['user-id'];
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
     const { data, error } = await supabase
         .from('livestock')
         .select('*')
+        .eq('farmer_id', userId)
         .order('created_at', { ascending: false });
 
     if (error) return res.status(400).json({ error: error.message });
@@ -77,11 +82,14 @@ app.get('/api/livestock', async (req, res) => {
 
 // POST API to add new livestock
 app.post('/api/livestock', async (req, res) => {
-    const { tag_id, breed, weight, farmer_id, status } = req.body;
+    const userId = req.headers['user-id'];
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const { tag_id, breed, weight, status } = req.body;
 
     const { data, error } = await supabase
         .from('livestock')
-        .insert([{ tag_id, breed, weight, farmer_id, status }])
+        .insert([{ tag_id, breed, weight, farmer_id: userId, status }])
         .select();
 
     if (error) return res.status(400).json({ error: error.message });
@@ -90,11 +98,15 @@ app.post('/api/livestock', async (req, res) => {
 // --- PROFILE API ROUTES ---
 // GET API to fetch the farmer profile
 app.get('/api/profile', async (req, res) => {
+    const userId = req.headers['user-id'];
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
     const { data, error } = await supabase
         .from('farmer_profiles')
         .select('*')
+        .eq('id', userId)
         .limit(1)
-        .single(); // Assuming 1 global profile for now
+        .single();
 
     if (error && error.code !== 'PGRST116') return res.status(400).json({ error: error.message });
     res.json(data || null);
@@ -102,21 +114,10 @@ app.get('/api/profile', async (req, res) => {
 
 // POST API to update the farmer profile
 app.post('/api/profile', async (req, res) => {
+    const userId = req.headers['user-id'];
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
     const { first_name, last_name, age, gender, location, farm_id, contact_number } = req.body;
-
-    // Check if we already have a profile to get its ID
-    let { data: existing } = await supabase.from('farmer_profiles').select('id').limit(1).single();
-    let userId = existing?.id;
-
-    if (!userId) {
-        // Create a dummy auth user to satisfy the foreign key constraint if none exists
-        const { data: authData, error: authErr } = await supabase.auth.signUp({
-            email: `farmer_${Date.now()}@farmtrack.com`,
-            password: 'securePassword123'
-        });
-        if (authErr) return res.status(400).json({ error: authErr.message });
-        userId = authData.user.id;
-    }
 
     const { data, error } = await supabase
         .from('farmer_profiles')
