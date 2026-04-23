@@ -1,0 +1,27 @@
+{
+  "dependencies": {
+    "@supabase/supabase-js": "^2.104.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
+  },
+  "name": "livestock-management-system",
+  "version": "1.0.0",
+  "description": "A web-based livestock ownership database that enables farmers to register, track, and manage livestock records including health, identification, and ownership details.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shubhgoswami064/livestock-management-system.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Shubhgoswami064/livestock-management-system/issues"
+  },
+  "homepage": "https://github.com/Shubhgoswami064/livestock-management-system#readme"
+}
