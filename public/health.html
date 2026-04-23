@@ -10,6 +10,8 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
+
+        /* ── Theme Variables (Unified) ── */
         :root {
             --primary: #7a9e7e;
             --primary-dark: #4a664d;
@@ -24,6 +26,7 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
+
         html { scroll-behavior: smooth; }
 
         body {
@@ -33,6 +36,7 @@
             overflow-x: hidden;
         }
 
+        /* ── Background Overlay ── */
         .background-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
             background-image: url('back.png');
@@ -41,13 +45,13 @@
             filter: blur(1.5px); transform: scale(1.02);
         }
 
+        /* ── Reveal Animations ── */
         .reveal {
             opacity: 0;
             transform: translateY(30px);
             transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
             visibility: hidden;
         }
-
         .reveal.active {
             opacity: 1;
             transform: translateY(0);
@@ -59,10 +63,12 @@
         .min-h-screen { height: 100vh; }
         .flex-1 { flex: 1; overflow-y: auto; overflow-x: hidden; padding-bottom: 5rem; }
 
+        /* ── Sidebar ── */
         #sidebar {
             width: 288px;
             height: 100vh;
             background: linear-gradient(to bottom, rgba(245, 240, 230, 1) 0%, rgba(245, 240, 230, 0.85) 30%, rgba(245, 240, 230, 0) 100%);
+            border-right: none;
             padding: 1.5rem;
             display: flex;
             flex-direction: column;
@@ -71,6 +77,7 @@
         }
         #sidebar.collapsed { margin-left: -288px; }
 
+        /* ── Nav Links ── */
         .nav-link {
             display: flex;
             align-items: center;
@@ -92,7 +99,9 @@
 
         /* ── Header ── */
         header {
-            position: sticky; top: 0; z-index: 30;
+            position: sticky;
+            top: 0;
+            z-index: 30;
             padding: 1rem 1.5rem;
             display: flex;
             justify-content: space-between;
@@ -103,13 +112,14 @@
             border-bottom: 1.5px solid var(--border-gray);
         }
 
+        /* ── Content ── */
         .content-container {
             padding: 2.5rem;
             max-width: 1200px;
             margin: 0 auto;
         }
 
-        /* ── Cards ── */
+        /* ── Glass Cards ── */
         .card {
             background: var(--glass-bg);
             backdrop-filter: blur(12px);
@@ -122,15 +132,31 @@
 
         .dark-card {
             background: rgba(59, 58, 54, 0.88);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: none;
             border-radius: 2rem;
             padding: 2rem;
             color: white;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
-        .page-hero h1 { font-size: 2.25rem; font-weight: 800; margin-bottom: 0.25rem; }
-        .page-hero p { color: var(--text-muted); font-size: 0.95rem; }
+        /* ── Hero Section ── */
+        .page-hero {
+            margin-bottom: 2rem;
+        }
+        .page-hero h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 0.25rem;
+        }
+        .page-hero p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
 
+        /* ── Stats Grid ── */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -139,13 +165,33 @@
         }
         .stat-card {
             background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1.5px solid var(--border-gray);
             padding: 1.5rem;
             border-radius: 2rem;
-            border: 1.5px solid var(--border-gray);
+            box-shadow: 0 4px 20px rgba(61, 43, 31, 0.15);
         }
-        .stat-label { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.75rem; }
-        .stat-value { font-size: 1.75rem; font-weight: 800; }
+        .stat-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+        .stat-change {
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 0.25rem;
+        }
 
+        /* ── Main Grid ── */
         .main-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -154,151 +200,436 @@
         }
 
         /* ── Score Ring ── */
-        .score-ring-container { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-        .score-ring { position: relative; width: 150px; height: 150px; }
-        .score-ring svg { transform: rotate(-90deg); }
-        .score-ring .ring-bg { fill: none; stroke: rgba(255,255,255,0.15); stroke-width: 10; }
-        .score-ring .ring-fg {
-            fill: none; stroke: #a8c9ab; stroke-width: 10; stroke-linecap: round;
-            stroke-dasharray: 408; stroke-dashoffset: 408;
-            transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        .score-ring-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1.5rem 0;
         }
-        .score-value { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2.5rem; font-weight: 800; }
+        .score-ring {
+            position: relative;
+            width: 150px;
+            height: 150px;
+        }
+        .score-ring svg {
+            transform: rotate(-90deg);
+        }
+        .score-ring .ring-bg {
+            fill: none;
+            stroke: rgba(255,255,255,0.15);
+            stroke-width: 10;
+        }
+        .score-ring .ring-fg {
+            fill: none;
+            stroke: #a8c9ab;
+            stroke-width: 10;
+            stroke-linecap: round;
+            stroke-dasharray: 408;
+            stroke-dashoffset: 32.6; /* 408 * (1 - 0.92) */
+            transition: stroke-dashoffset 1s ease;
+        }
+        .score-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: white;
+        }
+        .upcoming-box {
+            background: rgba(255,255,255,0.1);
+            padding: 1rem 1.25rem;
+            border-radius: 1rem;
+            width: 100%;
+        }
+        .upcoming-box .label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        .upcoming-box .sub {
+            font-size: 0.65rem;
+            opacity: 0.6;
+        }
 
-        /* ── Table ── */
-        .table-wrap { background: var(--glass-bg); border-radius: 2rem; padding: 2rem; border: 1.5px solid var(--border-gray); }
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th { text-align: left; padding-bottom: 1rem; font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); border-bottom: 1.5px solid var(--border-gray); }
-        td { padding: 1.25rem 0; border-bottom: 1px solid var(--border-gray); font-size: 0.875rem; }
+        /* ── Table Wrap ── */
+        .table-wrap {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1.5px solid var(--border-gray);
+            border-radius: 2rem;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(61, 43, 31, 0.15);
+        }
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .table-header h3 {
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        table { width: 100%; text-align: left; border-collapse: collapse; }
+        th {
+            padding-bottom: 1rem;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1.5px solid var(--border-gray);
+            font-weight: 800;
+        }
+        td {
+            padding: 1.25rem 0;
+            border-bottom: 1px solid var(--border-gray);
+            font-size: 0.875rem;
+        }
 
         /* ── Badges ── */
-        .badge { padding: 0.3rem 0.85rem; border-radius: 9999px; font-size: 0.65rem; font-weight: 700; }
+        .badge {
+            padding: 0.3rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
         .badge-green { background: #dcfce7; color: #15803d; }
         .badge-blue { background: #dbeafe; color: #1d4ed8; }
         .badge-orange { background: #ffedd5; color: #c2410c; }
+        .badge-yellow { background: #fef9c3; color: #a16207; }
 
-        .notification-dropdown {
-            position: absolute; top: 50px; right: 0; width: 300px;
-            background: white; border-radius: 1.5rem; padding: 1.5rem;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1); display: none; z-index: 1000;
+      .notification-dropdown {
+    position: absolute;
+    top: 0px;
+    right: 1.5rem;
+    width: 300px;
+    background: var(--card-bg);
+    backdrop-filter: blur(15px);
+    border: 1.5px solid var(--glass-border);
+    border-radius: 1.5rem;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    display: none;
+    z-index: 1000;
+    padding: 1.5rem;
+}
+
+.notification-dropdown.active { display: block; }
+
+.notification-item {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.notification-item:last-child { border: none; }
+
+.notif-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+
+        /* ── Animate Load ── */
+        .animate-load {
+            animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
-        .notification-dropdown.active { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-        .chart-container { height: 250px; }
+        /* ── Timeline Section ── */
+        .timeline-item {
+            display: flex;
+            gap: 1.25rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-gray);
+        }
+        .timeline-item:last-child { border-bottom: none; }
+        .timeline-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-top: 0.35rem;
+            flex-shrink: 0;
+        }
+        .timeline-content h4 {
+            font-size: 0.875rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        .timeline-content p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
 
+        /* ── Chart Container ── */
+        .chart-container {
+            height: 220px;
+            margin-top: 1rem;
+        }
+
+        /* ── Search bar in table ── */
         .search-bar {
             background: rgba(255,255,255,0.5);
             border: 1.5px solid var(--border-gray);
             padding: 0.5rem 1rem;
             border-radius: 1rem;
-            display: flex; align-items: center; gap: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        .search-bar input { background: transparent; border: none; outline: none; width: 100%; }
-
-        .timeline-item { display: flex; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--border-gray); }
-        .timeline-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+        .search-bar input {
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 0.85rem;
+            color: var(--text-main);
+        }
+        .search-bar input::placeholder { color: var(--text-muted); }
     </style>
 </head>
 
 <body>
     <div class="background-overlay"></div>
 
+    <div id="sidebar-overlay"></div>
+
     <div class="flex min-h-screen">
+        <!-- ── SIDEBAR ── -->
         <aside id="sidebar">
-            <div style="display: flex; align-items: center; gap: 0.75rem; font-weight: 700; font-size: 1.5rem; margin-bottom: 2.5rem;">
-                <i class="fas fa-tractor"></i> <span>FarmTrack</span>
-            </div>
-            <nav style="flex: 1; display: flex; flex-direction: column; gap: 0.5rem;">
-                <a href="MainDash.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
-                <a href="farmerDash.html" class="nav-link"><i class="fas fa-chart-pie"></i> Overview</a>
-                <a href="liveStock.html" class="nav-link"><i class="fas fa-cow"></i> My Livestock</a>
-                <a href="health.html" class="nav-link active"><i class="fas fa-file-medical"></i> Health Records</a>
-                <a href="schemes.html" class="nav-link"><i class="fas fa-shield-alt"></i> My Subsidies</a>
-            </nav>
-            <div id="support-container" style="padding: 1rem; background: var(--glass-bg); border-radius: 1.5rem; border: 1.5px solid var(--border-gray);">
-                <p style="font-size: 10px; opacity: 0.8; text-transform: uppercase;">Support</p>
-                <div id="support-content">
-                    <button onclick="showSupportInfo()" style="margin-top: 0.75rem; font-size: 0.75rem; background: var(--dark-green); color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.75rem; width: 100%; cursor: pointer;">
-                        Contact Agent
-                    </button>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; color: var(--text-dark, #3d2b1f); font-weight: 700; font-size: 1.5rem;">
+                    <i class="fas fa-tractor"></i> <span>FarmTrack</span>
                 </div>
             </div>
+
+            <nav style="flex: 1; display: flex; flex-direction: column; gap: 0.5rem;" class="nav-menu">
+                <a href="MainDash.html" class="nav-link "><i class="fas fa-home"></i> Dashboard</a>
+                <a href="farmerDash.html" class="nav-link "><i class="fas fa-chart-pie"></i> Overview</a>
+                <a href="liveStock.html" class="nav-link "><i class="fas fa-cow"></i> My Livestock</a>
+                <a href="health.html" class="nav-link active"><i class="fas fa-file-medical"></i> Health Records</a>
+                <a href="schemes.html" class="nav-link "><i class="fas fa-shield-alt"></i> My Subsidies</a>
+            </nav>
+
+          <div id="support-container" style="padding: 1rem; background: var(--glass-bg, rgba(255,252,245,0.55)); border-radius: 1.5rem; border: 1.5px solid var(--border-gray, rgba(255,252,245,0.55)); color: var(--text-main, #3d2b1f);">
+    <p style="font-size: 10px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.1em;">Support</p>
+    <p style="font-size: 0.875rem; font-weight: 600; margin-top: 0.25rem;">Need help with registration?</p>
+    
+    <div id="support-content">
+        <button onclick="showSupportInfo()" style="margin-top: 0.75rem; font-size: 0.75rem; background: var(--dark-green, #4a664d); color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.75rem; width: 100%; cursor: pointer;">
+            Contact Agent
+        </button>
+    </div>
         </aside>
 
+        <!-- ── MAIN ── -->
         <main class="flex-1">
             <header>
                 <div style="display: flex; align-items: center; gap: 1rem;">
-                    <button id="menu-btn" style="background: none; border: none; cursor: pointer;"><i class="fas fa-bars"></i></button>
-                    <div style="font-weight: 800; font-size: 1.25rem;">Health Records</div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 1.5rem; position: relative;">
-                    <button id="bell-btn" style="background: none; border: none; cursor: pointer; position: relative;">
-                        <i class="fas fa-bell"></i>
-                        <span id="notif-dot" style="position: absolute; top: 0; right: 0; width: 8px; height: 8px; background: #ef4444; border-radius: 50%;"></span>
+                    <button id="menu-btn" style="background:none; border:none; cursor:pointer; color:#4b5563;">
+                        <i class="fas fa-bars" style="font-size:1.25rem;"></i>
                     </button>
-                    <div id="notif-dropdown" class="notification-dropdown">
-                        <h4 style="margin-bottom: 10px;">Alerts</h4>
-                        <div class="notification-item"><p style="font-size: 0.8rem;">Vaccination Pending: Cow #ID-442</p></div>
-                    </div>
-                    <a href="MainDash.html">
-                        <img id="profile-btn" src="https://ui-avatars.com/api/?name=User&background=064e3b&color=fff" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--text-main);">
+                    <div style="color: var(--dark-brown); font-weight: 800; font-size: 1.25rem;">Health Records</div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 1rem; position: relative;">
+                     <div style="display: flex; align-items: center; gap: 1rem; position: relative;">
+                    <div style="display: flex; align-items: center; gap: 1rem; position: relative;">
+    <button id="bell-btn" style="background: none; border: none; position: relative; color: var(--text-dark); cursor: pointer;">
+        <i class="fas fa-bell" style="font-size: 1.2rem;"></i>
+        <span id="notif-dot" style="position: absolute; top: 2px; right: 2px; width: 8px; height: 8px; background: #ef4444; border-radius: 50%;"></span>
+    </button>
+    
+    <div id="notif-dropdown" class="notification-dropdown">
+        <h4 style="margin-bottom: 1rem; font-size: 0.9rem;">Alerts & Tasks</h4>
+        <div class="notification-item">
+            <div class="notif-icon" style="background: #fee2e2; color: #ef4444;"><i class="fas fa-syringe"></i></div>
+            <div>
+                <p style="font-size: 0.8rem; font-weight: 700;">Vaccination Pending</p>
+                <p style="font-size: 0.7rem; opacity: 0.7;">Cow #ID-442: FMD Booster</p>
+            </div>
+        </div>
+        <div class="notification-item">
+            <div class="notif-icon" style="background: #fef3c7; color: #d97706;"><i class="fas fa-file-invoice-dollar"></i></div>
+            <div>
+                <p style="font-size: 0.8rem; font-weight: 700;">Scheme Update</p>
+                <p style="font-size: 0.7rem; opacity: 0.7;">Subsidy application approved.</p>
+            </div>
+        </div>
+    </div>
+    </div>
+
+                     <a href="MainDash.html">
+
+                        <img src="https://ui-avatars.com/api/?name=Farmer+Joe&background=064e3b&color=fff" style="width:40px; height:40px; border-radius:50%; border: 2px solid var(--text-main);" alt="Profile" id="profile-btn">
+
                     </a>
                 </div>
             </header>
 
-            <div class="content-container reveal">
+            <div class="content-container animate-load">
+                <!-- Hero -->
                 <div class="page-hero">
-                    <h1>Health Records <i class="fas fa-heartbeat" style="color: var(--primary);"></i></h1>
-                    <p>Monitor vaccinations and medical history for your herd.</p>
+                    <h1>Health Records <i class="fas fa-heartbeat" style="color: var(--primary); font-size: 1.75rem;"></i></h1>
+                    <p>Monitor vaccinations, medical history, and overall herd health.</p>
                 </div>
 
-                <div class="stats-grid">
+                <!-- Stat Cards -->
+                <div class="stats-grid reveal">
                     <div class="stat-card">
                         <p class="stat-label">Health Score</p>
-                        <h2 class="stat-value" id="stat-score">--</h2>
+                        <h2 class="stat-value">92%</h2>
+                        <p class="stat-change" style="color: #046c4e;"><i class="fas fa-arrow-up"></i> +4% this month</p>
                     </div>
                     <div class="stat-card">
                         <p class="stat-label">Vaccinated</p>
-                        <h2 class="stat-value" id="stat-vaccinated">--</h2>
+                        <h2 class="stat-value">38</h2>
+                        <p class="stat-change" style="color: #046c4e;"><i class="fas fa-check-circle"></i> Up to date</p>
                     </div>
                     <div class="stat-card">
-                        <p class="stat-label">Pending</p>
-                        <h2 class="stat-value" id="stat-pending">--</h2>
+                        <p class="stat-label">Pending Vaccines</p>
+                        <h2 class="stat-value" style="color: #d97706;">04</h2>
+                        <p class="stat-change" style="color: #d97706;"><i class="fas fa-clock"></i> Due this week</p>
                     </div>
                     <div class="stat-card">
-                        <p class="stat-label">Alerts</p>
-                        <h2 class="stat-value" id="stat-alerts" style="color: #ef4444;">--</h2>
+                        <p class="stat-label">Active Alerts</p>
+                        <h2 class="stat-value" style="color: #ef4444;">01</h2>
+                        <p class="stat-change" style="color: #ef4444;"><i class="fas fa-exclamation-triangle"></i> Treatment needed</p>
                     </div>
                 </div>
 
-                <div class="main-grid">
+                <!-- Chart + Health Score Ring -->
+                <div class="main-grid reveal">
                     <div class="card">
-                        <h3>Vaccination Coverage</h3>
+                        <h3 style="font-weight: 700; font-size: 1.1rem; margin-bottom: 0.5rem;">Vaccination Coverage</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);">Herd vaccination progress over the past 6 months</p>
                         <div class="chart-container"><canvas id="healthLineChart"></canvas></div>
                     </div>
+
                     <div class="dark-card">
                         <div class="score-ring-container">
                             <div class="score-ring">
-                                <svg width="150" height="150"><circle class="ring-bg" cx="75" cy="75" r="65" /><circle class="ring-fg" cx="75" cy="75" r="65" /></svg>
-                                <div class="score-value" id="ring-score">0%</div>
+                                <svg width="150" height="150" viewBox="0 0 150 150">
+                                    <circle class="ring-bg" cx="75" cy="75" r="65" />
+                                    <circle class="ring-fg" cx="75" cy="75" r="65" />
+                                </svg>
+                                <div class="score-value">92%</div>
                             </div>
-                            <p style="opacity: 0.7;">Overall Herd Health</p>
+                            <p style="font-size: 0.85rem; opacity: 0.7; text-align: center;">Overall Herd Health Score</p>
+                            <div class="upcoming-box">
+                                <p class="label"><i class="fas fa-syringe" style="margin-right: 0.5rem;"></i>Upcoming: Anthrax Vaccine</p>
+                                <p class="sub">12 Animals • Next Tuesday</p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem;">
-                    <div class="card" id="timeline-list">
-                        <h3>Recent Activity</h3>
+                <!-- Timeline + Medical History Table side-by-side -->
+                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem;" class="reveal">
+                    <!-- Activity Timeline -->
+                    <div class="card">
+                        <h3 style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">Recent Activity</h3>
+                        <div class="timeline-item">
+                            <div class="timeline-dot" style="background: #046c4e;"></div>
+                            <div class="timeline-content">
+                                <h4>FMD Vaccination — A-901</h4>
+                                <p>Completed successfully • 24 Mar</p>
+                            </div>
                         </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot" style="background: #3b82f6;"></div>
+                            <div class="timeline-content">
+                                <h4>Deworming — G-402</h4>
+                                <p>Scheduled • 20 Mar</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot" style="background: #d97706;"></div>
+                            <div class="timeline-content">
+                                <h4>Health Checkup — S-210</h4>
+                                <p>Blood test normal • 15 Mar</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot" style="background: #ef4444;"></div>
+                            <div class="timeline-content">
+                                <h4>Treatment — A-874</h4>
+                                <p>Antibiotics prescribed • 10 Mar</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Medical History Table -->
                     <div class="table-wrap">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="table-header">
                             <h3>Medical History</h3>
-                            <div class="search-bar"><i class="fas fa-search"></i><input type="text" id="tableSearch" placeholder="Search..."></div>
+                            <div class="search-bar" style="width: 220px;">
+                                <i class="fas fa-search" style="color: #9ca3af;"></i>
+                                <input type="text" placeholder="Search records...">
+                            </div>
                         </div>
-                        <table id="recordsTable">
-                            <thead><tr><th>Date</th><th>Animal ID</th><th>Treatment</th><th>Vet</th><th style="text-align: right;">Status</th></tr></thead>
-                            <tbody></tbody>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Animal ID</th>
+                                    <th>Treatment</th>
+                                    <th>Vet</th>
+                                    <th style="text-align: right;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="color: var(--text-muted); font-weight: 500;">24 Mar 2026</td>
+                                    <td style="font-weight: 700;">A-901</td>
+                                    <td>FMD Vaccination</td>
+                                    <td style="color: var(--text-muted);">Dr. Sharma</td>
+                                    <td style="text-align: right;"><span class="badge badge-green">Completed</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="color: var(--text-muted); font-weight: 500;">20 Mar 2026</td>
+                                    <td style="font-weight: 700;">G-402</td>
+                                    <td>Deworming</td>
+                                    <td style="color: var(--text-muted);">Dr. Patel</td>
+                                    <td style="text-align: right;"><span class="badge badge-blue">Scheduled</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="color: var(--text-muted); font-weight: 500;">15 Mar 2026</td>
+                                    <td style="font-weight: 700;">S-210</td>
+                                    <td>Blood Test</td>
+                                    <td style="color: var(--text-muted);">Dr. Sharma</td>
+                                    <td style="text-align: right;"><span class="badge badge-green">Completed</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="color: var(--text-muted); font-weight: 500;">10 Mar 2026</td>
+                                    <td style="font-weight: 700;">A-874</td>
+                                    <td>Antibiotic Treatment</td>
+                                    <td style="color: var(--text-muted);">Dr. Gupta</td>
+                                    <td style="text-align: right;"><span class="badge badge-orange">In Progress</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="color: var(--text-muted); font-weight: 500;">05 Mar 2026</td>
+                                    <td style="font-weight: 700;">A-772</td>
+                                    <td>Anthrax Vaccine</td>
+                                    <td style="color: var(--text-muted);">Dr. Patel</td>
+                                    <td style="text-align: right;"><span class="badge badge-green">Completed</span></td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -307,101 +638,200 @@
     </div>
 
     <script>
-        let healthChart;
+        // ── Sidebar Toggle ──
+        const menuBtn = document.getElementById('menu-btn');
+        const sidebar = document.getElementById('sidebar');
 
-        async function fetchHealthRecords() {
+        function toggleSidebar() {
+            sidebar.classList.toggle('collapsed');
+        }
+        menuBtn.addEventListener('click', toggleSidebar);
+
+        // ── Notifications ──
+        const bellBtn = document.getElementById('bell-btn');
+    const notifDropdown = document.getElementById('notif-dropdown');
+    const notifDot = document.getElementById('notif-dot');
+
+    bellBtn.addEventListener('click', (e) => {
+        notifDropdown.classList.toggle('active');
+        notifDot.style.display = 'none'; // Clear the red dot once seen
+        e.stopPropagation();
+    });
+
+    // Close dropdown when clicking elsewhere
+    window.addEventListener('click', () => {
+        notifDropdown.classList.remove('active');
+    });
+
+
+        // ── Health Line Chart ──
+        const ctx = document.getElementById('healthLineChart').getContext('2d');
+
+        const gradient = ctx.createLinearGradient(0, 0, 0, 220);
+        gradient.addColorStop(0, 'rgba(122, 158, 126, 0.25)');
+        gradient.addColorStop(1, 'rgba(122, 158, 126, 0)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'],
+                datasets: [{
+                    label: 'Coverage %',
+                    data: [72, 78, 85, 88, 92, 95],
+                    borderColor: '#7a9e7e',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    backgroundColor: gradient,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#7a9e7e',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 60,
+                        max: 100,
+                        grid: { color: 'rgba(0,0,0,0.04)' },
+                        ticks: { 
+                            font: { family: 'Plus Jakarta Sans', weight: 600, size: 11 },
+                            color: '#5a544b',
+                            callback: val => val + '%'
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            font: { family: 'Plus Jakarta Sans', weight: 600, size: 11 },
+                            color: '#5a544b'
+                        }
+                    }
+                }
+            }
+        });
+function showSupportInfo() {
+    const container = document.getElementById('support-content');
+    container.innerHTML = `
+        <div style="margin-top: 0.75rem; font-size: 0.8rem; background: rgba(255,255,255,0.4); padding: 0.5rem; border-radius: 0.5rem; border: 1px solid rgba(74, 102, 77, 0.2);">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                <span style="color: #4a664d;">📞</span>
+                <span style="font-weight: 600;">+91 1800-444-5555</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="color: #4a664d;">📧</span>
+                <span style="font-size: 0.75rem;">support@livetrack.gov.in</span>
+            </div>
+            <button onclick="hideSupportInfo()" style="margin-top: 8px; background: transparent; border: none; color: #4a664d; font-size: 0.7rem; text-decoration: underline; cursor: pointer; padding: 0;">Close</button>
+        </div>
+    `;
+}
+
+function hideSupportInfo() {
+    const container = document.getElementById('support-content');
+    container.innerHTML = `
+        <button onclick="showSupportInfo()" style="margin-top: 0.75rem; font-size: 0.75rem; background: var(--dark-green, #4a664d); color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.75rem; width: 100%; cursor: pointer;">
+            Contact Agent
+        </button>
+    `;
+}
+  const cachedAvatar = localStorage.getItem('cachedAvatarUrl');
+
+        if (cachedAvatar) {
+
+            const profileBtn = document.getElementById('profile-btn');
+
+            if (profileBtn) profileBtn.src = cachedAvatar;
+
+        }
+
+
+
+        async function fetchProfileAvatar() {
+
             try {
-                // In a real app: const res = await fetch('/api/health/' + localStorage.getItem('userId'));
-                // Mocking dynamic data for demonstration:
-                const data = {
-                    stats: { score: 92, vaccinated: 38, pending: 4, alerts: 1 },
-                    chart: { labels: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'], values: [72, 78, 85, 88, 92, 95] },
-                    history: [
-                        { date: '2026-03-24', id: 'A-901', task: 'FMD Vaccination', vet: 'Dr. Sharma', status: 'Completed' },
-                        { date: '2026-03-20', id: 'G-402', task: 'Deworming', vet: 'Dr. Patel', status: 'Scheduled' },
-                        { date: '2026-03-10', id: 'A-874', task: 'Antibiotics', vet: 'Dr. Gupta', status: 'In Progress' }
-                    ]
-                };
 
-                updateUI(data);
-            } catch (err) { console.error("Load failed", err); }
+                const userId = localStorage.getItem('userId');
+
+                const res = await fetch('/api/profile', {
+
+                    headers: { 'user-id': userId || '' }
+
+                });
+
+                const profile = await res.json();
+
+               
+
+                let avatarName = 'F';
+
+                if (res.ok && profile) {
+
+                    const fullName = (profile.first_name || profile.last_name)
+
+                        ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
+
+                        : '';
+
+                    if (fullName) {
+
+                        avatarName = fullName;
+
+                    }
+
+                }
+
+               
+
+                const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(avatarName)}&background=064e3b&color=fff`;
+
+                const profileBtn = document.getElementById('profile-btn');
+
+                if (profileBtn) profileBtn.src = avatarUrl;
+
+               
+
+                localStorage.setItem('cachedAvatarUrl', avatarUrl);
+
+            } catch (err) {
+
+                console.error('Error fetching profile avatar:', err);
+
+            }
+
         }
 
-        function updateUI(data) {
-            document.getElementById('stat-score').innerText = data.stats.score + '%';
-            document.getElementById('stat-vaccinated').innerText = data.stats.vaccinated;
-            document.getElementById('stat-pending').innerText = data.stats.pending;
-            document.getElementById('stat-alerts').innerText = data.stats.alerts;
-            
-            // Ring Animation
-            document.getElementById('ring-score').innerText = data.stats.score + '%';
-            const offset = 408 * (1 - data.stats.score / 100);
-            document.querySelector('.ring-fg').style.strokeDashoffset = offset;
+        // ── Scroll Reveal Animations ──
+        function initAnimations() {
+            const observerOptions = {
+                threshold: 0.15,
+                rootMargin: "0px 0px -50px 0px"
+            };
 
-            // Chart
-            const ctx = document.getElementById('healthLineChart').getContext('2d');
-            if(healthChart) healthChart.destroy();
-            healthChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.chart.labels,
-                    datasets: [{
-                        data: data.chart.values,
-                        borderColor: '#7a9e7e',
-                        tension: 0.4,
-                        fill: true,
-                        backgroundColor: 'rgba(122, 158, 126, 0.1)'
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("active");
+                    } else {
+                        entry.target.classList.remove("active");
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.reveal').forEach(el => {
+                observer.observe(el);
             });
-
-            // Table
-            const tbody = document.querySelector('#recordsTable tbody');
-            tbody.innerHTML = data.history.map(row => `
-                <tr>
-                    <td>${row.date}</td>
-                    <td><b>${row.id}</b></td>
-                    <td>${row.task}</td>
-                    <td>${row.vet}</td>
-                    <td style="text-align: right;"><span class="badge ${getStatusClass(row.status)}">${row.status}</span></td>
-                </tr>
-            `).join('');
-        }
-
-        function getStatusClass(s) {
-            if(s === 'Completed') return 'badge-green';
-            if(s === 'Scheduled') return 'badge-blue';
-            return 'badge-orange';
-        }
-
-        // Search logic
-        document.getElementById('tableSearch').addEventListener('input', function(e) {
-            const val = e.target.value.toLowerCase();
-            document.querySelectorAll('#recordsTable tbody tr').forEach(tr => {
-                tr.style.display = tr.innerText.toLowerCase().includes(val) ? '' : 'none';
-            });
-        });
-
-        // Sidebar & UI Toggles
-        document.getElementById('menu-btn').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('collapsed'));
-        document.getElementById('bell-btn').addEventListener('click', (e) => {
-            document.getElementById('notif-dropdown').classList.toggle('active');
-            document.getElementById('notif-dot').style.display = 'none';
-            e.stopPropagation();
-        });
-
-        function showSupportInfo() {
-            document.getElementById('support-content').innerHTML = `
-                <div style="font-size: 0.8rem; margin-top: 10px;">
-                    <p>📞 +91 1800-444-5555</p>
-                    <button onclick="location.reload()" style="background:none; border:none; text-decoration:underline; cursor:pointer;">Close</button>
-                </div>`;
         }
 
         window.addEventListener('load', () => {
-            document.querySelector('.reveal').classList.add('active');
-            fetchHealthRecords();
+            initAnimations();
+            fetchProfileAvatar();
         });
     </script>
 </body>
