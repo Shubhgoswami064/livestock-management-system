@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiveTrack | Log Vaccination</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Export Modal Styling */
+#export-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+#export-modal.active { display: flex; }
+
+.modal-content {
+    background: white;
+    width: 100%;
+    max-width: 450px;
+    padding: 2.5rem;
+    border-radius: 2.5rem;
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    animation: slideUp 0.4s ease;
+}
+
+.export-option {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1.5px solid #f3f4f6;
+    border-radius: 1.25rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.export-option:hover { border-color: var(--primary-green); background: #f0fdf4; }
+
+.export-option i { font-size: 1.5rem; }
+.fa-file-pdf { color: #ef4444; }
+.fa-file-excel { color: #16a34a; }
+.fa-file-csv { color: #2563eb; }
+    </style>
+</head>
+<body>
+<div id="export-modal">
+    <div id="modal-overlay" style="position:absolute; inset:0; background:rgba(0,0,0,0.4); backdrop-filter:blur(4px);"></div>
+    <div class="modal-content">
+        <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;">Export Data</h3>
+        <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 2rem;">Select your preferred format for the animal inventory report.</p>
+
+        <div class="export-option" onclick="processExport('PDF')">
+            <i class="fas fa-file-pdf"></i>
+            <div>
+                <p style="font-weight: 700; color: #111827;">Portable Document (PDF)</p>
+                <p style="font-size: 0.75rem; color: #6b7280;">Best for printing and sharing.</p>
+            </div>
+        </div>
+
+        <div class="export-option" onclick="processExport('Excel')">
+            <i class="fas fa-file-excel"></i>
+            <div>
+                <p style="font-weight: 700; color: #111827;">Excel Spreadsheet (XLSX)</p>
+                <p style="font-size: 0.75rem; color: #6b7280;">Best for data analysis.</p>
+            </div>
+        </div>
+
+        <button onclick="closeExport()" style="width:100%; background:#f3f4f6; border:none; padding:1rem; border-radius:1rem; font-weight:700; margin-top:1rem; cursor:pointer;">Cancel</button>
+    </div>
+</div>
+    <script>
+       const exportModal = document.getElementById('export-modal');
+
+// Update your Quick Action button to call this:
+function openExport() {
+    exportModal.classList.add('active');
+}
+
+function closeExport() {
+    exportModal.classList.remove('active');
+}
+
+function processExport(format) {
+    const btn = event.currentTarget;
+    const originalContent = btn.innerHTML;
+    
+    // Visual Feedback
+    btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span style="margin-left:10px">Generating ${format}...</span>`;
+    
+    setTimeout(() => {
+        alert(`Success: Your ${format} report has been generated and downloaded.`);
+        btn.innerHTML = originalContent;
+        closeExport();
+    }, 2000);
+}
+
+// Close on overlay click
+document.getElementById('modal-overlay').onclick = closeExport;
+    </script>
+</body>
+</html>

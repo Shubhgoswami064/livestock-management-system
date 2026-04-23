@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiveTrack | Official Government Schemes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap');
+
+        :root {
+            --primary: #16a34a;
+            --bg-gray: #f9fafb;
+            --text-dark: #111827;
+            --text-muted: #6b7280;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-gray);
+            color: var(--text-dark);
+            padding: 2rem 1rem;
+        }
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    visibility: hidden;
+}
+
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+}
+
+/* Staggered delay for cards so they don't all jump at once */
+.feature-card:nth-child(2) { transition-delay: 0.1s; }
+.feature-card:nth-child(3) { transition-delay: 0.2s; }
+.feature-card:nth-child(4) { transition-delay: 0.3s; }
+.feature-card:nth-child(5) { transition-delay: 0.4s; }
+
+/* Smooth scrolling for the whole page */
+html {
+    scroll-behavior: smooth;
+}
+        .container { max-width: 1000px; margin: 0 auto; }
+
+        .back-nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+
+        .header { margin-bottom: 3rem; text-align: center; }
+        .header h1 { font-size: 2.5rem; font-weight: 800; color: #064e3b; }
+
+        .scheme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .scheme-card {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: 0.3s;
+        }
+
+        .scheme-card:hover { border-color: var(--primary); transform: translateY(-5px); }
+
+        .scheme-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #dcfce7;
+            color: #15803d;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .scheme-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.75rem; color: #065f46; min-height: 2.5rem; }
+        .scheme-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; flex-grow: 1; }
+
+        .link-btn {
+            display: block;
+            text-align: center;
+            background: #111827;
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .link-btn:hover { background: var(--primary); }
+
+        .humor-box {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: #fefce8;
+            border-radius: 0.75rem;
+            font-size: 0.75rem;
+            color: #854d0e;
+            border: 1px solid #fde047;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="MainDash.html" class="back-nav"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+
+        <div class="header">
+            <h1>Official Animal Welfare & Livestock Schemes</h1>
+            <p>12+ verified schemes for Indian Livestock Farmers (2026 Updated)</p>
+        </div>
+
+        <div class="scheme-grid">
+            
+            <div class="scheme-card reveal">
+                <div>
+                    <span class="scheme-tag">50% Capital Subsidy</span>
+                    <h2 class="scheme-title">National Livestock Mission (NLM)</h2>
+                    <p class="scheme-desc">Entrepreneurship development for poultry, sheep, goat, and piggery farming with bank-ended subsidies.</p>
+                </div>
+                <div class="humor-box reveal">👉 The "Startup India" for rural livestock.</div>
+                <a href="https://nlm.udyamimitra.in/" target="_blank" class="link-btn">Official NLM Portal</a>
+            </div>
+
+            <div class="scheme-card reveal">
+                <div>
+                    <span class="scheme-tag">Breed Improvement</span>
+                    <h2 class="scheme-title">Rashtriya Gokul Mission (RGM)</h2>
+                    <p class="scheme-desc">Focused on increasing milk production through genetic improvement of indigenous bovine breeds.</p>
+                </div>
+                <div class="humor-box reveal">👉 Better genetics = Higher milk yields.</div>
+                <a href="https://dahd.nic.in/schemes/programmes/rashtriya-gokul-mission" target="_blank" class="link-btn">Visit RGM Page</a>
+            </div>
+
+            <div class="scheme-card reveal">
+                <div>
+                    <span class="scheme-tag">3% Interest Subvention</span>
+                    <h2 class="scheme-title">Animal Husbandry Infra Fund (AHIDF)</h2>
+                    <p class="scheme-desc">Subsidized loans for milk processing plants, meat processing, and animal feed plants.</p>
+                </div>
+                <div class="humor-box reveal">👉 For the "Big Business" mode of farming.</div>
+                <a href="https://ahidf.udyamimitra.in/" target="_blank" class="link-btn">Official AHIDF Portal</a>
+            </div>
+
+            <div class="scheme-card reveal">
+                <div>
+                    <span class="scheme-tag">Free Vaccination</span>
+                    <h2 class="scheme-title">Livestock Health & Disease Control</h2>
+                    <p class="scheme-desc">National program to control FMD and Brucellosis via 100% centrally funded vaccinations.</p>
+                </div>
+                <div class="humor-box reveal">👉 Healthy animals = Stable profit.</div>
+                <a href="https://dahd.nic.in/schemes/programmes/lhdcp" target="_blank" class="link-btn">Health Program Info</a>
+            </div>
+
+            <div class="scheme-card reveal">
+                <div>
+                    <span class="scheme-tag">Working Capital</span>
+                    <h2 class="scheme-title">Kisan Credit Card (KCC) for Livestock</h2>
+                    <p class="scheme-desc">Easy credit for meeting the daily expenses of maintaining livestock (feed, medicines, etc.).</p>
+                </div>
+                <div class="humor-box reveal">👉 ATM card for your animal's needs.</div>
+                <a href="https://fasalrin.gov.in/" target="_blank" class="link-btn">Apply via Kisan Rin</a>
+            </div>
+
+            <div class="scheme-card reveal">
+                <div>
+                    <span class="scheme-tag">Blue Revolution</span>
+                    <h2 class="scheme-title">PM Matsya Sampada Yojana (PMMSY)</h2>
+                    <p class="scheme-desc">Financial assistance for fishery units, cage culture, and ornamental fish farming.</p>
+                </div>
+                <div class="humor-box reveal">👉 For those who prefer fins over hooves.</div>
+                <a href="https://pmmsy.dof.gov.in/" target="_blank" class="link-btn">Fisheries Portal</a>
+            </div>
+
+            <div class="scheme-card reveal">
+                <div>
+                    <span class="scheme-tag">Risk Coverage</span>
+                    <h2 class="scheme-title">Livestock Insurance Scheme</h2>
+                    <p class="scheme-desc">Subsidized insurance for indigenous/crossbred cows and buffaloes against accidental death.</p>
+                </div>
+                <div class="humor-box reveal">👉 Protection against the unexpected.</div>
+                <a href="https://dahd.nic.in/schemes/programmes/livestock-insurance-scheme" target="_blank" class="link-btn">Insurance Details</a>
+            </div>
+
+            <div class="scheme-card reveal">
+                <div>
+                    <span class="scheme-tag">Digital Platform</span>
+                    <h2 class="scheme-title">e-Gopala Digital Marketplace</h2>
+                    <p class="scheme-desc">A mobile app to buy/sell disease-free germplasm and manage animal health records digitally.</p>
+                </div>
+                <div class="humor-box reveal">👉 OLX + Health Record for your cattle.</div>
+                <a href="https://nddb.coop/services/egopala" target="_blank" class="link-btn">Get e-Gopala App</a>
+            </div>
+
+            <div class="scheme-card reveal">
+                <div>
+                    <span class="scheme-tag">Quality Milk</span>
+                    <h2 class="scheme-title">National Programme for Dairy Development</h2>
+                    <p class="scheme-desc">Focus on creating infrastructure for quality milk testing and primary chilling facilities.</p>
+                </div>
+                <div class="humor-box reveal">👉 Ensuring pure milk reaches the market.</div>
+                <a href="https://dahd.nic.in/schemes/programmes/npdd" target="_blank" class="link-btn">Dairy Development Info</a>
+            </div>
+
+            <div class="scheme-card reveal">
+                <div>
+                    <span class="scheme-tag">State Special: UP</span>
+                    <h2 class="scheme-title">Nand Baba Milk Mission</h2>
+                    <p class="scheme-desc">Promotion of indigenous cows and Nandini Krishak Samridhi Yojana for UP farmers.</p>
+                </div>
+                <div class="humor-box reveal">👉 Making UP a dairy powerhouse.</div>
+                <a href="https://nandbabadugdhmission.up.gov.in/" target="_blank" class="link-btn">UP Milk Mission Portal</a>
+            </div>
+
+            <div class="scheme-card reveal">
+                <div>
+                    <span class="scheme-tag">State Special: KA</span>
+                    <h2 class="scheme-title">Pashu Bhagya Scheme</h2>
+                    <p class="scheme-desc">Subsidized loans and insurance for cattle, sheep, and goat units in Karnataka.</p>
+                </div>
+                <div class="humor-box reveal">👉 Local support for KA farmers.</div>
+                <a href="https://pashubhagya.kar.nic.in/" target="_blank" class="link-btn">KA Pashu Bhagya</a>
+            </div>
+
+            <div class="scheme-card reveal">
+                <div>
+                    <span class="scheme-tag">Direct Benefit Transfer</span>
+                    <h2 class="scheme-title">PM-KISAN Income Support</h2>
+                    <p class="scheme-desc">₹6,000 yearly income support which can be used for livestock feed and maintenance.</p>
+                </div>
+                <div class="humor-box reveal">👉 Direct cash for farming needs.</div>
+                <a href="https://pmkisan.gov.in/" target="_blank" class="link-btn">Check PM-Kisan Status</a>
+            </div>
+
+        </div>
+    </div>
+<script>function initAnimations() {
+    console.log("Animation Engine Started...");
+    
+    const observerOptions = {
+        threshold: 0.15,
+        rootMargin: "0px 0px -50px 0px" // Triggers slightly before the element hits the view
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("active");
+            } else {
+                // If you want it to fade back out when scrolling UP, keep this:
+                entry.target.classList.remove("active");
+            }
+        });
+    }, observerOptions);
+
+    // Apply to all elements with the reveal class
+    document.querySelectorAll('.reveal').forEach(el => {
+        observer.observe(el);
+    });
+}
+
+// Run once the page is fully loaded
+window.addEventListener('load', initAnimations);</script>
+</body>
+</html>

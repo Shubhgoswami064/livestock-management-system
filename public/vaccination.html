@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiveTrack | Log Vaccination</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
+
+        :root {
+            --primary: #16a34a;
+            --primary-dark: #15803d;
+            --bg-gray: #f9fafb;
+            --border: #e5e7eb;
+            --text-main: #111827;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-gray);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .form-container {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            padding: 2.5rem;
+            border-radius: 2.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header { margin-bottom: 2rem; }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        h1 { font-size: 1.75rem; font-weight: 800; color: #064e3b; }
+        p { color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem; }
+
+        .form-group { margin-bottom: 1.25rem; }
+        label { 
+            display: block; 
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            color: #9ca3af; 
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            background: #fcfcfc;
+            font-family: inherit;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.1);
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+        .submit-btn {
+            width: 100%;
+            background: #111827;
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 1.25rem;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: 0.3s;
+        }
+
+        .submit-btn:hover { background: #000; transform: translateY(-2px); }
+        .submit-btn:active { transform: translateY(0); }
+
+        .success-msg {
+            display: none;
+            background: #dcfce7;
+            color: #15803d;
+            padding: 1rem;
+            border-radius: 1rem;
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <div id="success" class="success-msg">
+            <i class="fas fa-check-circle"></i> Logged Successfully!
+        </div>
+
+        <div class="header">
+            <a href="farmerDash.html" class="back-btn"><i class="fas fa-arrow-left"></i> MY Dashboard</a>
+            <h1>Log Vaccination</h1>
+            <p>Update the health records for your herd.</p>
+        </div>
+
+        <form id="vaccineForm">
+            <div class="form-group">
+                <label>Animal Tag ID</label>
+                <input type="text" placeholder="e.g. A-901" required>
+            </div>
+
+            <div class="form-group">
+                <label>Vaccine Type</label>
+                <select required>
+                    <option value="" disabled selected>Select Vaccine</option>
+                    <option value="fmd">FMD (Foot & Mouth)</option>
+                    <option value="brucellosis">Brucellosis</option>
+                    <option value="anthrax">Anthrax</option>
+                    <option value="h-septicaemia">H. Septicaemia</option>
+                </select>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Administered Date</label>
+                    <input type="date" id="currentDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Next Due Date</label>
+                    <input type="date" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Batch / Lot Number</label>
+                <input type="text" placeholder="B-882-90" required>
+            </div>
+
+            <button type="submit" class="submit-btn">Save Record</button>
+        </form>
+    </div>
+
+    <script>
+        // Set default date to today
+        document.getElementById('currentDate').valueAsDate = new Date();
+
+        // Handle Form Submission
+        document.getElementById('vaccineForm').onsubmit = (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const success = document.getElementById('success');
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            btn.style.opacity = '0.7';
+            btn.disabled = true;
+
+            // Simulate API Call
+            setTimeout(() => {
+                success.style.display = 'block';
+                btn.innerHTML = 'Save Record';
+                btn.style.opacity = '1';
+                btn.disabled = false;
+                e.target.reset();
+                document.getElementById('currentDate').valueAsDate = new Date();
+                
+                // Hide success message after 3 seconds
+                setTimeout(() => { success.style.display = 'none'; }, 3000);
+            }, 1200);
+        };
+    </script>
+</body>
+</html>

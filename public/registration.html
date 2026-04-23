@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiveTrack | Registration</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
+
+        :root {
+            --primary: #3d2b1f;
+            --primary-light: #4a664d;
+            --accent: #7a9e7e;
+            --bg-light: transparent;
+            --white: #ffffff;
+            --card-bg: rgba(255, 252, 245, 0.55);
+            --text-dark: #3d2b1f;
+            --text-muted: #5a544b;
+            --glass-border: rgba(255, 252, 245, 0.55);
+            --sidebar-width: 288px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: #fffcf5; 
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(74, 102, 77, 0.07) 0%, transparent 40%),
+                radial-gradient(circle at 100% 100%, rgba(122, 158, 126, 0.07) 0%, transparent 40%);
+            color: var(--text-dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .app-container { display: flex; min-height: 100vh; }
+
+        /* --- Sidebar --- */
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: var(--white);
+            padding: 24px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            border-right: 1.5px solid var(--glass-border);
+        }
+
+        .logo { 
+            display: flex; 
+            align-items: center; 
+            gap: 0.75rem; 
+            color: var(--primary); 
+            font-weight: 800; 
+            font-size: 1.5rem; 
+            margin-bottom: 2.5rem; 
+            text-decoration: none;
+        }
+
+        .nav-link { 
+            display: flex; align-items: center; gap: 16px; padding: 14px 18px;
+            text-decoration: none; color: var(--text-muted); font-weight: 600; border-radius: 16px; transition: 0.3s;
+        }
+        .nav-link:hover { background: #f3f4f6; color: var(--text-dark); }
+        .nav-link.active { background: rgba(74, 102, 77, 0.1); color: var(--primary-light); }
+
+        /* --- Main Content --- */
+        main { flex: 1; margin-left: var(--sidebar-width); min-height: 100vh; }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            padding: 1.25rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 252, 245, 0.6);
+            backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--glass-border);
+        }
+
+        .profile-img { width: 42px; height: 42px; border-radius: 14px; border: 2px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+
+        /* --- Form Card --- */
+        .content-wrapper { max-width: 700px; margin: 50px auto; padding: 0 24px; animation: fadeIn 0.6s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .form-card { 
+            background: var(--white); 
+            padding: 40px; 
+            border-radius: 32px; 
+            border: 1.5px solid var(--glass-border); 
+            box-shadow: 0 20px 40px rgba(61, 43, 31, 0.04); 
+        }
+
+        .form-group { margin-bottom: 24px; }
+        .form-group label { display: block; font-weight: 700; font-size: 0.85rem; color: var(--text-dark); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+        
+        input, select {
+            width: 100%; padding: 16px; background: #fdfbf7; border: 1.5px solid #eeeae3;
+            border-radius: 16px; outline: none; font-size: 1rem; color: var(--text-dark); transition: 0.3s;
+        }
+        input:focus, select:focus { border-color: var(--primary-light); background: var(--white); box-shadow: 0 0 0 4px rgba(74, 102, 77, 0.1); }
+
+        .btn-submit {
+            width: 100%; background: var(--primary-light); color: var(--white); border: none;
+            padding: 18px; border-radius: 18px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.3s;
+            box-shadow: 0 10px 20px rgba(74, 102, 77, 0.2);
+        }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(74, 102, 77, 0.3); }
+
+        /* --- Support Card Section --- */
+        .support-container {
+            margin-top: auto;
+            padding: 1rem; 
+            background: var(--card-bg); 
+            border-radius: 1.5rem; 
+            border: 1.5px solid var(--glass-border); 
+            color: var(--text-dark);
+        }
+
+        @media (max-width: 1024px) {
+            #sidebar { transform: translateX(-100%); transition: 0.4s; }
+            main { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <aside id="sidebar">
+            <a href="MainDash.html" class="logo">
+                <i class="fas fa-tractor"></i> <span>FarmTrack</span>
+            </a>
+            
+            <nav>
+                <a href="MainDash.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="farmerDash.html" class="nav-link"><i class="fas fa-chart-pie"></i> Overview</a>
+                <a href="liveStock.html" class="nav-link active"><i class="fas fa-cow"></i> My Livestock</a>
+                <a href="health.html" class="nav-link"><i class="fas fa-file-medical"></i> Health Records</a>
+                <a href="schemes.html" class="nav-link"><i class="fas fa-shield-alt"></i> My Subsidies</a>
+            </nav>
+
+            <div class="support-container">
+                <p style="font-size: 10px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.1em;">Support</p>
+                <p style="font-size: 0.875rem; font-weight: 600; margin-top: 0.25rem;">Need help with registration?</p>
+                <div id="support-content">
+                    <button onclick="showSupportInfo()" style="margin-top: 0.75rem; font-size: 0.75rem; background: var(--primary-light); color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.75rem; width: 100%; cursor: pointer; font-weight: 600;">
+                        Contact Agent
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <main>
+            <header>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-weight: 800; color: var(--text-dark); font-size: 1.4rem;">Register Livestock</span>
+                </div>
+                <a href="MainDash.html">
+                    <img src="https://ui-avatars.com/api/?name=Shubh+Goswami&background=4a664d&color=fff" class="profile-img" alt="User Profile">
+                </a>
+            </header>
+
+            <div class="content-wrapper">
+                <div class="form-card">
+                    <h2 style="margin-bottom: 1.5rem; font-size: 1.25rem; color: var(--primary);">Animal Information</h2>
+                    <form onsubmit="event.preventDefault(); alert('Livestock Registration Successful!');">
+                        <div class="form-group">
+                            <label>Species Type</label>
+                            <select>
+                                <option>Cattle (Cow/Buffalo)</option>
+                                <option>Goat/Sheep</option>
+                                <option>Swine</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tag ID Number</label>
+                            <input type="text" placeholder="e.g. A-7788-X">
+                        </div>
+                        <div class="form-group">
+                            <label>Breed / Variety</label>
+                            <input type="text" placeholder="e.g. Sahiwal, Holstein">
+                        </div>
+                        <div class="form-group">
+                            <label>Date of Birth</label>
+                            <input type="date">
+                        </div>
+                        <button type="submit" class="btn-submit">Confirm Registration</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function showSupportInfo() {
+            const container = document.getElementById('support-content');
+            container.innerHTML = `
+                <div style="margin-top: 0.75rem; font-size: 0.8rem; background: rgba(255,255,255,0.5); padding: 0.6rem; border-radius: 0.75rem; border: 1px solid var(--glass-border); animation: fadeIn 0.3s ease;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                        <i class="fas fa-phone-alt" style="color: var(--primary-light);"></i>
+                        <span style="font-weight: 700;">+91 1800-444-5555</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-envelope" style="color: var(--primary-light);"></i>
+                        <span style="font-size: 0.75rem; font-weight: 600;">support@livetrack.in</span>
+                    </div>
+                    <button onclick="hideSupportInfo()" style="margin-top: 8px; background: transparent; border: none; color: var(--primary-light); font-size: 0.7rem; text-decoration: underline; cursor: pointer; padding: 0; font-weight: 700;">Back</button>
+                </div>
+            `;
+        }
+
+        function hideSupportInfo() {
+            const container = document.getElementById('support-content');
+            container.innerHTML = `
+                <button onclick="showSupportInfo()" style="margin-top: 0.75rem; font-size: 0.75rem; background: var(--primary-light); color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.75rem; width: 100%; cursor: pointer; font-weight: 600;">
+                    Contact Agent
+                </button>
+            `;
+        }
+    </script>
+</body>
+</html>
