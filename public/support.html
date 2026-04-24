@@ -4,214 +4,356 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Support Center | FarmTrack</title>
+    
+    <!-- Fonts: Plus Jakarta for UI, Playfair Display for Branding -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for the Tractor Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --primary: #166534;
+            --primary: #0f172a;
+            --primary-green: #14532d;
+            --primary-light: #1e293b;
             --accent: #22c55e;
-            --bg-mint: #f0fdf4;
-            --white: #ffffff;
-            --text-dark: #0f172a;
-            --text-muted: #64748b;
+            --accent-soft: #dcfce7;
+            --bg-body: #ffffff;
+            --bg-section: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
             --border: #e2e8f0;
+            --nav-bg: rgba(255, 255, 255, 0.85);
+            --radius-xl: 32px;
             --radius-lg: 24px;
-            --radius-md: 16px;
-            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --radius-md: 12px;
+            --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1);
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Logo Brand Colors from Welcome Page */
+            --brand-dark: #3d2b1f;
+            --brand-rust: #c0673a;
+        }
+
+        [data-theme="dark"] {
+            --primary: #f8fafc;
+            --primary-green: #4ade80;
+            --primary-light: #e2e8f0;
+            --accent: #86efac;
+            --accent-soft: #064e3b;
+            --bg-body: #020617;
+            --bg-section: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --nav-bg: rgba(2, 6, 23, 0.85);
+            
+            /* Adjust brand colors slightly for dark mode visibility if needed */
+            --brand-dark: #f8fafc; 
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background-color: var(--bg-mint); color: var(--text-dark); line-height: 1.6; }
-
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 5%;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .logo { display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 800; color: var(--primary); text-decoration: none; }
-        .nav-links { display: flex; list-style: none; gap: 32px; }
-        .nav-links a { text-decoration: none; color: var(--text-dark); font-weight: 600; transition: var(--transition); }
-        .nav-links a:hover { color: var(--primary); }
-
+        body { background-color: var(--bg-body); color: var(--text-main); line-height: 1.6; transition: background-color 0.3s ease; }
         .container { max-width: 1200px; margin: 0 auto; padding: 0 5%; }
+        
+        /* --- Updated Logo Styles --- */
+        .logo { 
+            display: flex; 
+            align-items: center; 
+            font-family: 'Playfair Display', serif;
+            font-size: 28px; 
+            font-weight: 700; 
+            color: var(--brand-dark); 
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        .logo i {
+            color: var(--brand-rust);
+            font-size: 0.8em;
+            margin-right: 0.5rem;
+        }
+        .logo span {
+            color: var(--brand-rust);
+        }
+        
+        /* --- Navigation --- */
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            height: 90px; background: var(--nav-bg); backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; padding: 0 5%;
+        }
+        
+        .nav-actions { display: flex; align-items: center; gap: 20px; }
+        .theme-toggle { background: none; border: 1px solid var(--border); color: var(--text-main); padding: 8px; border-radius: 50%; cursor: pointer; display: flex; transition: var(--transition); }
+        .btn { display: inline-flex; padding: 12px 24px; border-radius: var(--radius-md); font-weight: 700; text-decoration: none; transition: var(--transition); border: none; cursor: pointer; }
+        .btn-primary { background: var(--primary-green); color: white; }
 
         /* --- Support Hero --- */
-        .support-hero { padding: 100px 5% 60px; text-align: center; background: radial-gradient(circle at bottom, var(--white) 0%, var(--bg-mint) 100%); }
-        .support-hero h1 { font-size: 3rem; color: var(--primary); margin-bottom: 24px; font-weight: 800; }
-        .search-box { max-width: 600px; margin: 0 auto; position: relative; }
-        .search-box input { width: 100%; padding: 18px 24px; border-radius: var(--radius-md); border: 2px solid var(--border); font-size: 1.1rem; outline: none; transition: var(--transition); box-shadow: var(--shadow); }
-        .search-box input:focus { border-color: var(--accent); }
+        .support-hero { padding: 80px 0; background: var(--bg-section); text-align: center; border-bottom: 1px solid var(--border); }
+        .support-hero h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 16px; }
+        .search-container { max-width: 600px; margin: 30px auto 0; position: relative; }
+        .search-input { width: 100%; padding: 18px 25px 18px 55px; border-radius: 50px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main); font-size: 1.1rem; outline: none; transition: var(--transition); }
+        .search-input:focus { border-color: var(--primary-green); box-shadow: 0 0 0 4px var(--accent-soft); }
+        .search-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
 
-        /* --- Support Categories --- */
-        .categories-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin: 30px 0; }
-        .cat-card { background: var(--white); padding: 32px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: var(--transition); cursor: pointer; text-align: center; }
-        .cat-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: var(--shadow); }
-        .cat-icon { font-size: 2.5rem; margin-bottom: 16px; display: block; }
+        /* --- Help Categories --- */
+        .categories-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin: -50px auto 60px; position: relative; z-index: 10; }
+        .category-card { background: var(--bg-card); padding: 35px; border-radius: var(--radius-lg); border: 1px solid var(--border); text-align: center; transition: var(--transition); text-decoration: none; color: inherit; }
+        .category-card:hover { transform: translateY(-10px); border-color: var(--primary-green); box-shadow: var(--shadow-lg); }
+        .cat-icon { font-size: 2.5rem; margin-bottom: 15px; display: block; }
+        .category-card h3 { margin-bottom: 10px; color: var(--primary-green); }
+        .category-card p { font-size: 0.95rem; color: var(--text-muted); }
 
-        /* --- FAQ Section --- */
-        .faq-section { background: var(--white); padding: 50px 0; border-radius: 60px 60px 0 0; }
-        .faq-item { border-bottom: 1px solid var(--border); padding: 24px 0; }
-        .faq-question { font-weight: 700; color: var(--primary); font-size: 1.2rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .faq-answer { margin-top: 15px; color: var(--text-muted); display: none; }
-        .faq-item.active .faq-answer { display: block; }
+        /* --- FAQ Accordion --- */
+        .faq-section { padding: 80px 0; }
+        .faq-header { text-align: center; margin-bottom: 50px; }
+        .faq-container { max-width: 800px; margin: 0 auto; }
+        .faq-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); margin-bottom: 15px; overflow: hidden; }
+        .faq-question { width: 100%; padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; background: none; border: none; cursor: pointer; text-align: left; font-size: 1.1rem; font-weight: 700; color: var(--text-main); transition: var(--transition); }
+        .faq-question:hover { background: var(--bg-section); }
+        .faq-answer { max-height: 0; overflow: hidden; transition: all 0.4s ease; background: var(--bg-card); }
+        .faq-answer p { padding: 0 25px 20px; color: var(--text-muted); }
+        .faq-item.active .faq-answer { max-height: 300px; }
+        .faq-item.active .faq-toggle-icon { transform: rotate(180deg); }
 
-        /* --- Contact Form --- */
-        .contact-wrapper { display: grid; grid-template-columns: 1fr 1.5fr; gap: 60px; margin-top: 100px; padding-bottom: 100px; }
-        .contact-info h2 { font-size: 2.5rem; color: var(--primary); margin-bottom: 20px; }
-        .contact-card { background: var(--bg-mint); padding: 30px; border-radius: var(--radius-md); margin-bottom: 20px; }
+        /* --- Contact Section --- */
+        .contact-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 60px; padding: 80px 0; border-top: 1px solid var(--border); }
+        .contact-info h2 { font-size: 2rem; margin-bottom: 20px; }
+        .contact-method { display: flex; gap: 15px; margin-bottom: 25px; align-items: flex-start; }
+        .method-icon { width: 45px; height: 45px; background: var(--accent-soft); color: var(--primary-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         
-        .contact-form { background: var(--white); padding: 40px; border-radius: var(--radius-lg); box-shadow: var(--shadow); border: 1px solid var(--border); }
+        .contact-form { background: var(--bg-card); padding: 40px; border-radius: var(--radius-lg); border: 1px solid var(--border); }
         .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; }
-        .form-group input, .form-group textarea { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); outline: none; }
-        .btn-submit { background: var(--primary); color: white; border: none; padding: 16px 32px; border-radius: 12px; font-weight: 700; cursor: pointer; width: 100%; transition: var(--transition); }
-        .btn-submit:hover { background: var(--primary-light); }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); outline: none; transition: var(--transition); }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--primary-green); }
+        
+        /* --- Footer --- */
+        footer { padding: 60px 0 30px; border-top: 1px solid var(--border); background: var(--bg-section); text-align: center; }
+        .footer-bottom { margin-top: 40px; color: var(--text-muted); font-size: 0.9rem; }
 
-        [data-reveal] { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; }
-        [data-reveal].revealed { opacity: 1; transform: translateY(0); }
-
-        @media (max-width: 968px) { .contact-wrapper { grid-template-columns: 1fr; } }
+        @media (max-width: 968px) { .contact-grid { grid-template-columns: 1fr; } .categories-grid { margin-top: 30px; } }
     </style>
 </head>
 <body>
 
     <nav class="navbar">
         <a href="index.html" class="logo">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>
-            FarmTrack
+            <i class="fas fa-tractor"></i>Farm<span>Track</span>
         </a>
-        <a href="login_signup.html" style="background: var(--primary); color: white; padding: 10px 20px; border-radius: 12px; text-decoration: none; font-weight: 600;">Sign In</a>
+        <div class="nav-actions">
+            <button class="theme-toggle" id="themeBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            </button>
+            <a href="login_signup.html" class="btn btn-primary">Login</a>
+        </div>
     </nav>
 
     <header class="support-hero">
-        <div class="container" data-reveal>
-            <h1>How can we help?</h1>
-            <div class="search-box">
-                <input type="text" placeholder="Search for articles, guides, and more...">
-            </div>
-        </div>
-
         <div class="container">
-            <div class="categories-grid">
-                <div class="cat-card" data-reveal>
-                    <span class="cat-icon">🚀</span>
-                    <h3>Getting Started</h3>
-                    <p>Setup your farm profile and add your first animal.</p>
-                </div>
-                <div class="cat-card" data-reveal style="transition-delay: 0.1s;">
-                    <span class="cat-icon">💳</span>
-                    <h3>Billing & Plans</h3>
-                    <p>Manage your subscription and view invoices.</p>
-                </div>
-                <div class="cat-card" data-reveal style="transition-delay: 0.2s;">
-                    <span class="cat-icon">🛠️</span>
-                    <h3>Technical Issues</h3>
-                    <p>Troubleshooting and system status reports.</p>
-                </div>
+            <h1>Support Center</h1>
+            <p>Dedicated assistance for LPU's centralized livestock database project.</p>
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" placeholder="Search for registration guides, technical help...">
             </div>
         </div>
     </header>
 
+    <section class="container">
+        <div class="categories-grid">
+            <a href="#" class="category-card">
+                <span class="cat-icon">🐂</span>
+                <h3>Registration</h3>
+                <p>Step-by-step guides on adding new livestock to the central registry.</p>
+            </a>
+            <a href="#" class="category-card">
+                <span class="cat-icon">📋</span>
+                <h3>Govt. Schemes</h3>
+                <p>Eligibility criteria and application processes for Punjab agricultural schemes.</p>
+            </a>
+            <a href="#" class="category-card">
+                <span class="cat-icon">🔒</span>
+                <h3>Data Privacy</h3>
+                <p>How we ensure your ownership data remains centralized yet secure.</p>
+            </a>
+            <a href="#" class="category-card">
+                <span class="cat-icon">📈</span>
+                <h3>Analytics</h3>
+                <p>Understanding the resource planning dashboard for better farm yield.</p>
+            </a>
+            <a href="#" class="category-card">
+                <span class="cat-icon">🏥</span>
+                <h3>Health Records</h3>
+                <p>Digital tracking for vaccinations, illness history, and vet reports.</p>
+            </a>
+            <a href="#" class="category-card">
+                <span class="cat-icon">🎓</span>
+                <h3>Learning Hub</h3>
+                <p>Access workshops and documentation specifically for rural users.</p>
+            </a>
+        </div>
+    </section>
+
     <section class="faq-section">
         <div class="container">
-            <h2 style="font-size: 2.2rem; color: var(--primary); margin-bottom: 40px;" data-reveal>Frequently Asked Questions</h2>
-            
-            <div class="faq-item" data-reveal>
-                <div class="faq-question">How secure is my farm data? <span>+</span></div>
-                <div class="faq-answer">We use end-to-end encryption and distributed cloud storage to ensure your data is never lost or accessible by unauthorized parties.</div>
+            <div class="faq-header">
+                <h2>Common Inquiries</h2>
+                <p>Quick resolutions for the most frequent questions.</p>
             </div>
-            
-            <div class="faq-item" data-reveal style="transition-delay: 0.1s;">
-                <div class="faq-question">Can I export records for government audits? <span>+</span></div>
-                <div class="faq-answer">Yes, FarmTrack allows you to export comprehensive PDF and CSV reports that meet standard regulatory requirements.</div>
-            </div>
-
-            <div class="faq-item" data-reveal style="transition-delay: 0.2s;">
-                <div class="faq-question">Does it work without internet? <span>+</span></div>
-                <div class="faq-answer">Our mobile app has an offline mode that syncs your data automatically as soon as you are back in range of a connection.</div>
-            </div>
-
-            <div class="contact-wrapper">
-                <div class="contact-info" data-reveal>
-                    <h2>Still have questions?</h2>
-                    <p style="color: var(--text-muted); margin-bottom: 30px;">Our support team is available Monday through Friday, 8am to 6pm EST.</p>
-                    <div class="contact-card">
-                        <strong>Email Us</strong><br>
-                        <span>support@farmtrack.com</span>
-                    </div>
-                    <div class="contact-card">
-                        <strong>Live Chat</strong><br>
-                        <span>Typical response: < 5 mins</span>
+            <div class="faq-container">
+                <div class="faq-item">
+                    <button class="faq-question">
+                        How does centralized tracking help me?
+                        <span class="faq-toggle-icon">▼</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>By digitizing your records, you create a verifiable history of ownership and health. This helps in securing loans, qualifying for government schemes, and managing resources without manual paperwork.</p>
                     </div>
                 </div>
-
-                <div class="contact-form" data-reveal style="transition-delay: 0.2s;">
-                    <form id="supportForm">
-                        <div class="form-group">
-                            <label>Full Name</label>
-                            <input type="text" placeholder="John Doe" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Email Address</label>
-                            <input type="email" placeholder="john@example.com" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Subject</label>
-                            <input type="text" placeholder="Technical Support" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Message</label>
-                            <textarea rows="5" placeholder="Tell us how we can help..." required></textarea>
-                        </div>
-                        <button type="submit" class="btn-submit">Send Message</button>
-                    </form>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Is my data accessible to everyone?
+                        <span class="faq-toggle-icon">▼</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>No. While the database is centralized for resource planning, individual ownership details are private and only accessible via secure login. Aggregated data is used for government planning without compromising your privacy.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        What happens if I lose my login credentials?
+                        <span class="faq-toggle-icon">▼</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>You can use the 'Forgot Password' feature with your registered mobile number or email. For further assistance, our support team can verify your physical registration documents to restore access.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Can I transfer ownership through the database?
+                        <span class="faq-toggle-icon">▼</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Yes. FarmTrack supports efficient ownership transfer. Both parties must confirm the transfer through the app, which then updates the central registry instantly.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <footer style="padding: 40px; text-align: center; background: var(--bg-mint);">
-        <p style="color: var(--text-muted);">&copy; 2026 FarmTrack Global. Built for the modern rancher.</p>
+    <section class="container contact-grid">
+        <div class="contact-info">
+            <h2>Reach Our Team</h2>
+            <p style="margin-bottom: 30px;">Direct support for farmers and administrative bodies in the Jalandhar region.</p>
+            
+            <div class="contact-method">
+                <div class="method-icon">📧</div>
+                <div>
+                    <h4>Email Support</h4>
+                    <p class="text-muted">support@farmtrack.lpu.in</p>
+                </div>
+            </div>
+            <div class="contact-method">
+                <div class="method-icon">📞</div>
+                <div>
+                    <h4>Helpdesk (Punjab)</h4>
+                    <p class="text-muted">+91 98765 43210</p>
+                </div>
+            </div>
+            <div class="contact-method">
+                <div class="method-icon">📍</div>
+                <div>
+                    <h4>LPU Project Hub</h4>
+                    <p class="text-muted">Lovely Professional University, G.T. Road, <br>Phagwara, Punjab 144411</p>
+                </div>
+            </div>
+        </div>
+
+        <form class="contact-form" id="supportForm">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" required placeholder="Enter your name">
+            </div>
+            <div class="form-group">
+                <label>Registration ID (if applicable)</label>
+                <input type="text" placeholder="e.g. FT-2026-PB-123">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" placeholder="e.g. tanvi@gmail.com">
+            </div>
+            <div class="form-group">
+                <label>Problem Type</label>
+                <select class="search-input" style="padding: 10px; font-size: 0.9rem;">
+                    <option>Livestock Registration Issue</option>
+                    <option>Login/Account Access</option>
+                    <option>Scheme Eligibility Query</option>
+                    <option>Technical Bug</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>How can we help?</label>
+                <textarea rows="5" required placeholder="Describe your issue in detail..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Inquiry</button>
+            <p id="formStatus" style="margin-top: 15px; text-align: center; display: none; color: var(--accent); font-weight: 700;">✅ Inquiry submitted successfully! We will contact you soon.</p>
+        </form>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 15px; margin-bottom: 20px;">
+                <a href="index.html" class="logo">
+                    <i class="fas fa-tractor"></i>Farm<span>Track</span>
+                </a>
+                <p style="color: var(--text-muted);">Centralized Livestock Management Platform | Jalandhar Hub</p>
+            </div>
+            <div class="footer-bottom">
+                &copy; 2026 FarmTrack | Semester Project | Lovely Professional University
+            </div>
+        </div>
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const revealElements = document.querySelectorAll('[data-reveal]');
-            const revealOnScroll = () => {
-                revealElements.forEach(el => {
-                    const rect = el.getBoundingClientRect();
-                    if (rect.top <= (window.innerHeight * 0.85)) el.classList.add('revealed');
-                });
-            };
-            window.addEventListener('scroll', revealOnScroll);
-            revealOnScroll();
-
-            // FAQ Toggle
-            document.querySelectorAll('.faq-question').forEach(q => {
-                q.addEventListener('click', () => {
-                    q.parentElement.classList.toggle('active');
-                    q.querySelector('span').innerText = q.parentElement.classList.contains('active') ? '-' : '+';
-                });
+        // --- FAQ Logic ---
+        document.querySelectorAll('.faq-question').forEach(item => {
+            item.addEventListener('click', () => {
+                const parent = item.parentElement;
+                const wasActive = parent.classList.contains('active');
+                
+                // Close all others
+                document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+                
+                // Toggle current
+                if (!wasActive) parent.classList.add('active');
             });
+        });
 
-            // Form Submit Simulation
-            document.getElementById('supportForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                alert('Thank you! Your message has been sent. Our team will get back to you shortly.');
-                e.target.reset();
-            });
+        // --- Theme Toggle ---
+        const themeBtn = document.getElementById('themeBtn');
+        const body = document.body;
+        themeBtn.addEventListener('click', () => {
+            const isDark = body.getAttribute('data-theme') === 'dark';
+            body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            themeBtn.innerHTML = isDark ? 
+                '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>' : 
+                '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+        });
+
+        // --- Form Logic ---
+        document.getElementById('supportForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            document.getElementById('formStatus').style.display = 'block';
+            e.target.reset();
+            setTimeout(() => {
+                document.getElementById('formStatus').style.display = 'none';
+            }, 5000);
         });
     </script>
 </body>
