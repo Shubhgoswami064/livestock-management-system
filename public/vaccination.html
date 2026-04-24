@@ -172,31 +172,49 @@
 
     <script>
         // Set default date to today
-        document.getElementById('currentDate').valueAsDate = new Date();
+      // Set default date to today
+document.getElementById('currentDate').valueAsDate = new Date();
 
-        // Handle Form Submission
-        document.getElementById('vaccineForm').onsubmit = (e) => {
-            e.preventDefault();
-            const btn = e.target.querySelector('button');
-            const success = document.getElementById('success');
-            
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-            btn.style.opacity = '0.7';
-            btn.disabled = true;
+// Handle Form Submission
+document.getElementById('vaccineForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    const successMsg = document.getElementById('success');
 
-            // Simulate API Call
-            setTimeout(() => {
-                success.style.display = 'block';
-                btn.innerHTML = 'Save Record';
-                btn.style.opacity = '1';
-                btn.disabled = false;
-                e.target.reset();
-                document.getElementById('currentDate').valueAsDate = new Date();
-                
-                // Hide success message after 3 seconds
-                setTimeout(() => { success.style.display = 'none'; }, 3000);
-            }, 1200);
-        };
+    const formData = {
+        animal_id: e.target.querySelector('input[placeholder="e.g. A-901"]').value,
+        treatment: e.target.querySelector('select').value,
+        date: document.getElementById('currentDate').value,
+        next_due: e.target.querySelectorAll('input[type="date"]')[1].value,
+        batch_number: e.target.querySelector('input[placeholder="B-882-90"]').value
+    };
+
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    btn.disabled = true;
+
+    try {
+        const response = await fetch('/api/save-vaccination', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'user-id': localStorage.getItem('userId') 
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+            successMsg.style.display = 'block';
+            e.target.reset();
+            document.getElementById('currentDate').valueAsDate = new Date();
+            setTimeout(() => { successMsg.style.display = 'none'; }, 3000);
+        }
+    } catch (err) {
+        alert("Server error. Is server.js running?");
+    } finally {
+        btn.innerHTML = 'Save Record';
+        btn.disabled = false;
+    }
+};
     </script>
 </body>
 </html>

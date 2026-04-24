@@ -300,7 +300,9 @@
             <div style="padding: 2.5rem; max-width: 1200px; margin: 0 auto;">
                 <div>
                     <h2 style="font-size: 2.25rem; font-weight: 800; color: var(--text-main);">Eligible Grants</h2>
-                    <p style="color: var(--text-muted); margin-top: 0.25rem; font-weight: 600;">Based on your herd of <span style="color: var(--dark-green); font-weight: 800;">1,240 animals.</span></p>
+                    <p style="color: var(--text-muted); margin-top: 0.25rem; font-weight: 600;">
+    Based on your herd of <span id="herd-count" style="color: var(--dark-green); font-weight: 800;">Loading...</span> animals.
+</p>
                 </div>
 
                 <div class="grid-container">
@@ -327,7 +329,7 @@
             </div>
         </main>
     </div>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // Sidebar Toggle
         const menuBtn = document.getElementById('menu-btn');
@@ -436,10 +438,45 @@ function hideSupportInfo() {
             }
         }
 
-        window.addEventListener('load', () => {
-            initAnimations();
-            fetchProfileAvatar();
+      async function updateHerdCount() {
+    const herdElement = document.getElementById('herd-count');
+    const userId = localStorage.getItem('userId');
+
+    if (!userId) {
+        console.error("User ID not found in localStorage");
+        if (herdElement) herdElement.innerText = "0";
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/herd-count', {
+            method: 'GET',
+            headers: {
+                'user-id': userId,
+                'Content-Type': 'application/json'
+            }
         });
+
+        if (!response.ok) throw new Error('Failed to fetch count');
+
+        const data = await response.json();
+        
+        if (herdElement) {
+            // Update the UI with the number from your database
+            herdElement.innerText = data.count.toLocaleString();
+        }
+    } catch (err) {
+        console.error('Error fetching herd count:', err);
+        if (herdElement) herdElement.innerText = "Error";
+    }
+}
+
+// Add this to your window 'load' event listener
+window.addEventListener('load', () => {
+    initAnimations();
+    fetchProfileAvatar();
+    updateHerdCount(); // <--- Add this call here
+});
     </script>
 </body>
 </html>

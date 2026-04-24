@@ -828,10 +828,119 @@ function hideSupportInfo() {
                 observer.observe(el);
             });
         }
+async function refreshHealthData() {
+    const userId = localStorage.getItem('userId');
+    if (!userId) return;
 
+    try {
+        // Fetch Summary Stats
+        const summaryRes = await fetch('/api/health-summary', { headers: { 'user-id': userId } });
+        const summary = await summaryRes.json();
+
+        // Update Stats UI
+        document.querySelectorAll('.stat-value')[0].innerText = `${summary.healthScore}%`;
+        document.querySelectorAll('.stat-value')[1].innerText = summary.vaccinated;
+        document.querySelectorAll('.stat-value')[2].innerText = summary.pending;
+        document.querySelectorAll('.stat-value')[3].innerText = summary.alerts;
+
+        // Update the Ring and Center Text
+        const ring = document.querySelector('.ring-fg');
+        const scoreText = document.querySelector('.score-value');
+        if(ring) {
+            const offset = 408 * (1 - (summary.healthScore / 100));
+            ring.style.strokeDashoffset = offset;
+            scoreText.innerText = `${summary.healthScore}%`;
+        }
+
+        // Fetch History (Table & Timeline)
+        const historyRes = await fetch('/api/health-history', { headers: { 'user-id': userId } });
+        const history = await historyRes.json();
+
+        updateTable(history);
+        updateTimeline(history.slice(0, 4)); // Only show last 4 in timeline
+
+    } catch (err) {
+        console.error("Failed to sync health data:", err);
+    }
+}
+
+function updateTable(data) {
+    const tbody = document.querySelector('table tbody');
+    tbody.innerHTML = data.map(item => `
+        <tr>
+            <td style="color: var(--text-muted); font-weight: 500;">
+                ${new Date(item.date).toLocaleDateString()}
+            </td>
+            <td style="font-weight: 700;">${item.animal_id}</td>
+            <td>
+                <div>${item.treatment}</div>
+                <small style="color: #9ca3af; font-size: 0.7rem;">Batch: ${item.batch_number || 'N/A'}</small>
+            </td>
+            <td style="color: var(--text-muted);">
+                Next Due: ${item.next_due ? new Date(item.next_due).toLocaleDateString() : 'N/A'}
+            </td>
+            <td style="text-align: right;">
+                <span class="badge ${getStatusBadge(item.status)}">${item.status}</span>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function updateTimeline(data) {
+    const timeline = document.querySelector('.card h3').nextElementSibling; // Targets the container after the H3
+    // Note: You might want to wrap your timeline items in a specific ID container for easier selection
+}
+
+function getStatusBadge(status) {
+    if (status === 'Completed') return 'badge-green';
+    if (status === 'Scheduled') return 'badge-blue';
+    return 'badge-orange';
+}
+async function loadHealthDashboard() {
+    const userId = localStorage.getItem('userId');
+    if (!userId) return;
+
+    try {
+        const response = await fetch('/api/get-health-records', {
+            headers: { 'user-id': userId }
+        });
+        const records = await response.json();
+
+        // 1. Update Table
+        const tbody = document.querySelector('table tbody');
+        if (tbody) {
+            tbody.innerHTML = records.map(record => `
+                <tr>
+                    <td>${new Date(record.date).toLocaleDateString()}</td>
+                    <td><strong>${record.animal_id}</strong></td>
+                    <td>${record.treatment}</td>
+                    <td>Batch: ${record.batch_number || 'N/A'}</td>
+                    <td><span class="badge badge-green">${record.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        // 2. Update Stats (Example: Count total vaccinations)
+        const totalVaccines = records.length;
+        // Assuming your stat cards have specific IDs or indices
+        const statValues = document.querySelectorAll('.stat-value');
+        if (statValues.length > 1) {
+            statValues[1].innerText = totalVaccines; 
+        }
+
+    } catch (err) {
+        console.error("Failed to load health data:", err);
+    }
+}
+
+// Run on page load
+window.addEventListener('load', loadHealthDashboard);
+// Call this on load
+window.addEventListener('load', refreshHealthData);
         window.addEventListener('load', () => {
             initAnimations();
             fetchProfileAvatar();
+            loadHealthRecords();
         });
     </script>
 </body>

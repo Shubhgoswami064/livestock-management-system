@@ -138,7 +138,60 @@ app.post('/api/profile', async (req, res) => {
     if (error) return res.status(400).json({ error: error.message });
     res.status(200).json({ message: 'Profile updated!', profile: data[0] });
 });
+// --- ANIMAL COUNT API ---
+app.get('/api/herd-count', async (req, res) => {
+    const userId = req.headers['user-id'];
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
+    // We use { count: 'exact', head: true } to get just the number of rows
+    const { count, error } = await supabase
+        .from('livestock')
+        .select('*', { count: 'exact', head: true })
+        .eq('farmer_id', userId);
+
+    if (error) return res.status(400).json({ error: error.message });
+    
+    res.json({ count: count || 0 });
+});
+// GET API to fetch health records
+// --- HEALTH DASHBOARD DATA ---
+// --- SAVE VACCINATION ---
+app.post('/api/save-vaccination', async (req, res) => {
+    const { animal_id, treatment, date, next_due, batch_number } = req.body;
+    const userId = req.headers['user-id'];
+
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const { data, error } = await supabase
+        .from('health_records')
+        .insert([{ 
+            farmer_id: userId, 
+            animal_id, 
+            treatment, 
+            date, 
+            next_due, 
+            batch_number,
+            status: 'Completed' 
+        }]);
+
+    if (error) return res.status(400).json({ error: error.message });
+    res.json({ success: true, data });
+});
+
+// --- GET HEALTH RECORDS (For health.html) ---
+app.get('/api/get-health-records', async (req, res) => {
+    const userId = req.headers['user-id'];
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const { data, error } = await supabase
+        .from('health_records')
+        .select('*')
+        .eq('farmer_id', userId)
+        .order('date', { ascending: false });
+
+    if (error) return res.status(400).json({ error: error.message });
+    res.json(data);
+});
 const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Server: http://localhost:${PORT}`);
