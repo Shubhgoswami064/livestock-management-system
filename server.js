@@ -273,8 +273,7 @@ app.get('/api/notifications', async (req, res) => {
 
     res.json(notifications.filter(Boolean));
 });
-if (process.env.NODE_ENV !== 'production')
-     { const PORT = process.env.PORT || 3000; app.listen(PORT, () => { console.log(`🚀 Server: http://localhost:${PORT}`); }); }
+
 // -- support form --
 app.post('/api/support', async (req, res) => {
     const { name, registration_id, email, problem_type, message } = req.body;
@@ -296,5 +295,50 @@ app.post('/api/support', async (req, res) => {
 
     res.json({ success: true, message: "Query submitted successfully" });
 });
+// --- HEALTH CHART DATA (MONTHLY COVERAGE) ---
+app.get('/api/health-chart', async (req, res) => {
+    const userId = req.headers['user-id'];
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
+    const { data, error } = await supabase
+        .from('health_records')
+        .select('date, status')
+        .eq('farmer_id', userId)
+        .order('date', { ascending: true });
+
+    if (error) return res.status(400).json({ error: error.message });
+
+    // If no data → return empty
+    if (!data.length) return res.json([]);
+
+    // Group by month
+    const monthly = {};
+
+    data.forEach(record => {
+        const d = new Date(record.date);
+        const month = d.toLocaleString('default', { month: 'short' });
+
+        if (!monthly[month]) {
+            monthly[month] = { total: 0, completed: 0 };
+        }
+
+        monthly[month].total++;
+        if (record.status === 'Completed') {
+            monthly[month].completed++;
+        }
+    });
+
+    // Convert to array
+    const result = Object.keys(monthly).map(month => {
+        const m = monthly[month];
+        return {
+            month,
+            coverage: m.total === 0 ? 0 : Math.round((m.completed / m.total) * 100)
+        };
+    });
+
+    res.json(result);
+});
+if (process.env.NODE_ENV !== 'production')
+     { const PORT = process.env.PORT || 3000; app.listen(PORT, () => { console.log(`🚀 Server: http://localhost:${PORT}`); }); }
 export default app;
