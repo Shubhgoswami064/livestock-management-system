@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FarmTrack | Modern Livestock Management</title>
-    <!-- Typography -->
+    
+    <!-- Typography: Plus Jakarta for UI, Playfair Display for Branding -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for the Tractor Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- CSS -->
     <style>
@@ -25,6 +29,9 @@
             --radius-md: 16px;
             --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Fully Black Branding as requested */
+            --brand-color: #000000;
         }
 
         * {
@@ -40,6 +47,41 @@
             color: var(--text-dark);
             overflow-x: hidden;
             line-height: 1.6;
+        }
+
+        /* --- Scroll Reveal Animation Styles --- */
+        [data-reveal] {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
+                        transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: opacity, transform;
+        }
+
+        [data-reveal].revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- Logo Styles (Fully Black) --- */
+        .logo {
+            display: flex;
+            align-items: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--brand-color);
+            text-decoration: none;
+            transition: var(--transition);
+            letter-spacing: -0.5px;
+        }
+        .logo i {
+            color: var(--brand-color);
+            font-size: 0.7em;
+            margin-right: 0.5rem;
+        }
+        .logo span {
+            color: var(--brand-color);
         }
 
         /* --- UI Components --- */
@@ -76,11 +118,6 @@
             border: 2px solid var(--primary);
         }
 
-        .btn-outline:hover {
-            background: var(--bg-mint);
-            transform: translateY(-2px);
-        }
-
         /* --- Navigation --- */
         .navbar {
             display: flex;
@@ -102,16 +139,6 @@
             box-shadow: var(--shadow);
         }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 24px;
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: -0.5px;
-        }
-
         .nav-links {
             display: flex;
             list-style: none;
@@ -127,31 +154,8 @@
             position: relative;
         }
 
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--accent);
-            transition: var(--transition);
-        }
+        .nav-actions { display: flex; gap: 12px; }
 
-        .nav-links a:hover {
-            color: var(--primary);
-        }
-
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-
-        .nav-actions {
-            display: flex;
-            gap: 12px;
-        }
-
-        /* Mobile Menu Toggle */
         .menu-toggle {
             display: none;
             flex-direction: column;
@@ -173,7 +177,7 @@
             min-height: calc(100vh - 80px);
             display: flex;
             align-items: center;
-            justify-content: center; /* Added for centering */
+            justify-content: center;
             padding: 0 5%;
             overflow: hidden;
             background: #000;
@@ -181,20 +185,14 @@
 
         .hero-video-bg {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             object-fit: cover;
             z-index: 1;
         }
 
         .hero-overlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255, 255, 255, 0.2); 
             z-index: 2;
         }
@@ -202,7 +200,7 @@
         .hero-container {
             position: relative;
             z-index: 5;
-            display: flex; /* Changed from grid to flex for centering */
+            display: flex;
             justify-content: center;
             align-items: center;
             max-width: 1300px;
@@ -211,14 +209,14 @@
         }
 
         .hero-content {
-            background: rgba(255, 255, 255, 0.45); /* Slightly more opaque */
+            background: rgba(255, 255, 255, 0.45);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             padding: 60px 40px;
             border-radius: var(--radius-lg);
             border: 1px solid rgba(255, 255, 255, 0.4);
-            text-align: center; /* Center the text */
-            max-width: 800px; /* Limit width for readability when centered */
+            text-align: center;
+            max-width: 800px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.1);
         }
 
@@ -235,311 +233,208 @@
             color: var(--text-dark);
             margin-bottom: 40px;
             max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .hero-actions {
-            display: flex;
-            gap: 16px;
-            justify-content: center; /* Center buttons */
-            flex-wrap: wrap;
-        }
-
-        /* Floating decoration */
-        .blob {
-            position: absolute;
-            z-index: 3;
-            filter: blur(40px);
-            opacity: 0.3;
-            border-radius: 50%;
-        }
-
-        .blob-1 { width: 300px; height: 300px; background: var(--accent); top: -50px; right: -50px; }
-        .blob-2 { width: 200px; height: 200px; background: var(--primary); bottom: 10%; left: -50px; }
-
-        /* --- Features Section --- */
-        .section-header {
-            text-align: center;
-            max-width: 700px;
-            margin: 0 auto 60px;
-            padding: 0 20px;
-        }
-
-        .section-header h2 {
-            font-size: 2.5rem;
-            color: var(--primary);
-            font-weight: 800;
-            margin-bottom: 16px;
-        }
-
-        .features {
-            padding: 100px 5%;
-            background: var(--white);
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 24px;
-            max-width: 1300px;
-            margin: 0 auto;
-        }
-
-        .feature-card {
-            background: var(--bg-light);
-            padding: 40px;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-            transition: var(--transition);
-        }
-
-        .feature-card:hover {
-            transform: translateY(-8px);
-            background: var(--white);
-            box-shadow: var(--shadow);
-            border-color: var(--accent);
-        }
-
-        .feature-card-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-
-        .feature-icon {
-            width: 48px;
-            height: 48px;
-            background: var(--bg-mint);
-            color: var(--primary);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-        }
-
-         /* --- How It Works --- */
-        .how-it-works {
-            padding: 100px 5%;
-            background: var(--bg-mint);
-        }
-
-        .steps-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 40px;
-            max-width: 1100px;
-            margin: 0 auto;
-            position: relative;
-        }
-
-        .step-card {
-            text-align: center;
-            z-index: 2;
-        }
-
-        .step-number {
-            width: 60px;
-            height: 60px;
-            background: var(--primary);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 24px;
-            font-size: 1.5rem;
-            font-weight: 800;
-            box-shadow: 0 0 0 8px rgba(22, 101, 52, 0.1);
-        }
-
-        .step-card h3 {
-            margin-bottom: 12px;
-            color: var(--primary);
-        }
-
-        /* --- CTA Section --- */
-        .cta {
-            padding: 80px 5%;
-        }
-
-        .cta-banner {
-            background: linear-gradient(135deg, var(--primary) 0%, #064e3b 100%);
-            border-radius: 40px;
-            padding: 80px 40px;
-            text-align: center;
-            color: white;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-        }
-
-        .cta-banner h2 {
-            font-size: 3rem;
-            font-weight: 800;
-            margin-bottom: 24px;
-        }
-
-        .cta-banner p {
-            font-size: 1.2rem;
-            margin-bottom: 40px;
-            opacity: 0.9;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        /* --- Footer --- */
-        .footer {
-            background: var(--white);
-            padding: 60px 5% 30px;
-            border-top: 1px solid var(--border);
-        }
-
-        .footer-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1.5fr;
-            gap: 60px;
-            max-width: 1300px;
             margin: 0 auto 40px;
         }
 
+        .hero-actions {
+            display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+        }
+
+        /* --- Features Section --- */
+        .section-header { text-align: center; max-width: 700px; margin: 0 auto 60px; padding: 0 20px; }
+        .section-header h2 { font-size: 2.5rem; color: var(--primary); font-weight: 800; margin-bottom: 16px; }
+
+        .features { padding: 100px 5%; background: var(--white); }
+        .features-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px; max-width: 1300px; margin: 0 auto;
+        }
+
+        .feature-card {
+            background: var(--bg-light); padding: 40px; border-radius: var(--radius-lg);
+            border: 1px solid var(--border); transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px); background: var(--white);
+            box-shadow: var(--shadow); border-color: var(--accent);
+        }
+
+        .feature-card-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+        .feature-icon {
+            width: 48px; height: 48px; background: var(--bg-mint); color: var(--primary);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;
+        }
+
+        /* --- New Toggle Effect Section (Insights Accordion) --- */
+        .insight-section { padding: 100px 5%; background: var(--bg-section); border-top: 1px solid var(--border); }
+        .insight-container { max-width: 800px; margin: 0 auto; }
+        .insight-item {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        .insight-header {
+            width: 100%;
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+        .insight-header:hover { background: var(--bg-mint); }
+        .insight-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+        .insight-content p { padding: 0 24px 24px; color: var(--text-muted); font-size: 1rem; line-height: 1.6; }
+        .insight-item.active .insight-content { max-height: 300px; }
+        .insight-item.active .toggle-icon { transform: rotate(180deg); }
+        .toggle-icon { transition: transform 0.3s ease; color: var(--primary); }
+
+        /* --- How It Works --- */
+        .how-it-works { padding: 100px 5%; background: var(--bg-mint); }
+        .steps-container {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px;
+            max-width: 1100px; margin: 0 auto;
+        }
+        .step-card { text-align: center; }
+        .step-number {
+            width: 60px; height: 60px; background: var(--primary); color: white;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 24px; font-size: 1.5rem; font-weight: 800;
+            box-shadow: 0 0 0 8px rgba(22, 101, 52, 0.1);
+        }
+
+        /* --- CTA Section --- */
+        .cta { padding: 80px 5%; }
+        .cta-banner {
+            background: linear-gradient(135deg, var(--primary) 0%, #064e3b 100%);
+            border-radius: 40px; padding: 80px 40px; text-align: center; color: white;
+            position: relative; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        /* --- Footer Styles --- */
+        .footer { 
+            padding: 80px 5% 40px; 
+            border-top: 1px solid var(--border); 
+            background: var(--white); 
+        }
+        .footer-grid { 
+            display: grid; 
+            grid-template-columns: 2fr 1fr 1.5fr; 
+            gap: 60px; 
+            max-width: 1300px; 
+            margin: 0 auto 60px; 
+        }
         .footer-info p {
             margin-top: 20px;
             color: var(--text-muted);
-            max-width: 300px;
+            max-width: 320px;
+            font-size: 0.95rem;
         }
-
         .footer-links h4 {
-            margin-bottom: 20px;
-            color: var(--primary);
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            position: relative;
         }
-
         .footer-links ul {
             list-style: none;
         }
-
         .footer-links li {
             margin-bottom: 12px;
         }
-
         .footer-links a {
             text-decoration: none;
             color: var(--text-muted);
+            font-size: 0.95rem;
             transition: var(--transition);
+            display: inline-block;
         }
-
         .footer-links a:hover {
             color: var(--primary);
-            padding-left: 5px;
+            transform: translateX(5px);
         }
-
-        .footer-bottom {
-            text-align: center;
-            padding-top: 30px;
-            border-top: 1px solid var(--border);
-            color: var(--text-muted);
-            font-size: 0.9rem;
+        .footer-social {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
         }
-
-        /* --- Notification System --- */
-        .toast-container {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 9999;
-        }
-
-        .toast {
-            background: var(--white);
-            border-left: 5px solid var(--primary);
-            padding: 16px 24px;
-            border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            margin-top: 12px;
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-light);
             display: flex;
             align-items: center;
-            gap: 12px;
-            transform: translateX(120%);
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.1rem;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        .social-icon:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+        .footer-bottom { 
+            text-align: center; 
+            border-top: 1px solid var(--border); 
+            padding-top: 40px; 
+            color: var(--text-muted); 
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1300px;
+            margin: 0 auto;
         }
 
-        .toast.show {
-            transform: translateX(0);
-        }
-
-        /* --- Animations --- */
-        [data-reveal] {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s ease-out;
-        }
-
-        [data-reveal].revealed {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* --- Responsive --- */
         @media (max-width: 1024px) {
-            .hero-container { grid-template-columns: 1fr; text-align: center; }
-            .hero-content p { margin-left: auto; margin-right: auto; }
-            .hero-image { order: -1; }
-            .steps-container { grid-template-columns: 1fr; }
-            .footer-grid { grid-template-columns: 1fr 1fr; }
+            .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+            .footer-bottom { flex-direction: column; gap: 20px; text-align: center; }
         }
-
-        @media (max-width: 768px) {
-            .nav-links, .nav-actions { display: none; }
+        @media (max-width: 768px) { 
+            .footer-grid { grid-template-columns: 1fr; text-align: center; }
+            .footer-info p { margin-left: auto; margin-right: auto; }
+            .footer-social { justify-content: center; }
+            .nav-links { display: none; }
             .menu-toggle { display: flex; }
-            .navbar.mobile-open .nav-links {
-                display: flex;
-                flex-direction: column;
-                position: absolute;
-                top: 80px;
-                left: 0;
-                width: 100%;
-                background: white;
-                padding: 40px;
-                box-shadow: var(--shadow);
-                gap: 20px;
-            }
-            .navbar.mobile-open .nav-actions {
-                display: flex;
-                flex-direction: column;
-                padding: 20px 40px 40px;
-                position: absolute;
-                top: 250px;
-                width: 100%;
-                background: white;
-            }
-            .hero-content h1 { font-size: 2.8rem; }
-            .cta-banner h2 { font-size: 2rem; }
         }
-
     </style>
 </head>
 <body>
 
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
-        <div class="logo">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>
-            FarmTrack
-        </div>
+        <a href="index.html" class="logo">
+            <i class="fas fa-tractor"></i>Farm<span>Track</span>
+        </a>
 
         <ul class="nav-links">
             <li><a href="#features">Features</a></li>
+            <li><a href="#insight-section">Insights</a></li>
             <li><a href="#how-it-works">Process</a></li>
-            <li><a href="public/about.html">About</a></li>
-            <li><a href="#">Support</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/support">Support</a></li>
         </ul>
 
         <div class="nav-actions">
-            <a href="/login_signup" class="btn btn-outline" id="signInBtn">Sign In</a>
-            <a href="/login_signup" class="btn btn-primary" id="getStartedBtn">Get Started</a>
+            <a href="/login_signup" class="btn btn-outline">Sign In</a>
+            <a href="/login_signup" class="btn btn-primary">Get Started</a>
         </div>
 
         <div class="menu-toggle" id="menuToggle">
@@ -552,21 +447,18 @@
     <!-- Hero Section -->
     <section class="hero">
         <video class="hero-video-bg" autoplay muted loop playsinline>
-            <source src="public/cow_video.mp4" type="video/mp4">
-            <source src="https://assets.mixkit.co/videos/preview/mixkit-cows-grazing-in-a-green-meadow-42544-large.mp4" type="video/mp4">
+            <source src="/video">
         </video>
 
         <div class="hero-overlay"></div>
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
         
         <div class="hero-container">
             <div class="hero-content" data-reveal>
                 <h1>Secure Digital Registry for Your Livestock</h1>
                 <p>Empower your farm with a professional-grade tracking system. Register, monitor health, and verify ownership with a single click.</p>
                 <div class="hero-actions">
-                    <a href="/login_signup" class="btn btn-primary" style="padding: 16px 32px; font-size: 1.1rem;" id="heroDashboardBtn">Access Dashboard</a>
-                    <a href="https://www.youtube.com/playlist?list=PLHKyfEzQkP1NBfy6g7TaGpMDA_yf1cW3g"><button class="btn btn-outline" style="padding: 16px 32px; font-size: 1.1rem; border-color: var(--primary);">Watch Demo</button></a>
+                    <a href="/login_signup" class="btn btn-primary" style="padding: 16px 32px; font-size: 1.1rem;">Access Dashboard</a>
+                    <a href="https://www.youtube.com/playlist?list=PLHKyfEzQkP1NBfy6g7TaGpMDA_yf1cW3g" class="btn btn-outline" style="padding: 16px 32px; font-size: 1.1rem; border-color: var(--primary);">Watch Demo</a>
                 </div>
             </div>
         </div>
@@ -582,69 +474,71 @@
         <div class="features-grid">
             <div class="feature-card" data-reveal>
                 <div class="feature-card-header">
-                    <div class="feature-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
-                    </div>
+                    <div class="feature-icon"><i class="fas fa-clipboard-list"></i></div>
                     <h3>Digital Registration</h3>
                 </div>
                 <p>Easily register new animals with detailed profiles including age, breed, and source.</p>
             </div>
             <div class="feature-card" data-reveal style="transition-delay: 0.1s;">
                 <div class="feature-card-header">
-                    <div class="feature-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    </div>
+                    <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
                     <h3>Ownership Verification</h3>
                 </div>
                 <p>Maintain an immutable digital trail for legal ownership and smooth transfers.</p>
             </div>
             <div class="feature-card" data-reveal style="transition-delay: 0.2s;">
                 <div class="feature-card-header">
-                    <div class="feature-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    </div>
+                    <div class="feature-icon"><i class="fas fa-heartbeat"></i></div>
                     <h3>Health Tracking</h3>
                 </div>
                 <p>Log vaccinations, treatments, and scheduled vet visits with automatic alerts.</p>
             </div>
-            <div class="feature-card" data-reveal>
-                <div class="feature-card-header">
-                    <div class="feature-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                    </div>
-                    <h3>Insights & Stats</h3>
-                </div>
-                <p>Visualise your farm's growth with automated reports and category breakdowns.</p>
-            </div>
-            <div class="feature-card" data-reveal style="transition-delay: 0.1s;">
-                <div class="feature-card-header">
-                    <div class="feature-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    </div>
-                    <h3>Instant Search</h3>
-                </div>
-                <p>Find any record in seconds using our powerful, lightning-fast search engine.</p>
-            </div>
-            <div class="feature-card" data-reveal style="transition-delay: 0.2s;">
-                <div class="feature-card-header">
-                    <div class="feature-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M3 7v1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7H3z"/><path d="M19 21v-7a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v7"/></svg>
-                    </div>
-                    <h3>Govt. Alignment</h3>
-                </div>
-                <p>Export reports that meet local regulatory requirements and welfare schemes.</p>
-            </div>
         </div>
     </section>
     
+    <!-- Platform Insights (Toggle Effect Section) -->
+    <section class="insight-section" id="insight-section">
+        <div class="section-header" data-reveal>
+            <h2>Platform Insights</h2>
+            <p>Explore the key advantages of digitizing your livestock management with FarmTrack.</p>
+        </div>
+        <div class="insight-container" data-reveal>
+            <div class="insight-item">
+                <button class="insight-header">
+                    <span>Data Integrity & Security</span>
+                    <span class="toggle-icon">▼</span>
+                </button>
+                <div class="insight-content">
+                    <p>Every record entered into FarmTrack is timestamped and encrypted. We use centralized cloud infrastructure to ensure that your farm's history is never lost and remains accessible only to authorized personnel.</p>
+                </div>
+            </div>
+            <div class="insight-item">
+                <button class="insight-header">
+                    <span>Automated Compliance Reporting</span>
+                    <span class="toggle-icon">▼</span>
+                </button>
+                <div class="insight-content">
+                    <p>Gone are the days of manual paperwork for government inspections. FarmTrack generates instant compliance reports that meet local agricultural standards, saving you hours of administrative work.</p>
+                </div>
+            </div>
+            <div class="insight-item">
+                <button class="insight-header">
+                    <span>Scalability for Any Farm Size</span>
+                    <span class="toggle-icon">▼</span>
+                </button>
+                <div class="insight-content">
+                    <p>Whether you manage a small family herd or a large-scale commercial operation, our architecture scale seamlessly. Add thousands of records without experiencing any drop in performance.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        <!-- How It Works -->
+    <!-- How It Works -->
     <section class="how-it-works" id="how-it-works">
         <div class="section-header" data-reveal>
             <h2>Simple 3-Step Process</h2>
             <p>Get started in minutes with our intuitive onboarding.</p>
         </div>
-
         <div class="steps-container">
             <div class="step-card" data-reveal>
                 <div class="step-number">1</div>
@@ -668,8 +562,8 @@
     <section class="cta">
         <div class="cta-banner" data-reveal>
             <h2>Ready to Digitize Your Farm?</h2>
-            <p>Join over 5,000+ farmers already using FarmTrack to streamline their operations and protect their assets.</p>
-            <a href="/login_signup" class="btn" style="background: white; color: var(--primary); padding: 18px 40px; font-size: 1.1rem;" id="ctaBtn">Create Free Account</a>
+            <p>Join over 5,000+ farmers already using FarmTrack to streamline their operations.</p>
+            <a href="/login_signup" class="btn" style="background: white; color: var(--primary); padding: 18px 40px; font-size: 1.1rem;">Create Free Account</a>
         </div>
     </section>
 
@@ -677,30 +571,36 @@
     <footer class="footer">
         <div class="footer-grid">
             <div class="footer-info">
-                <div class="logo">FarmTrack</div>
-                <p>The world's most trusted digital livestock registry for modern farmers.</p>
+                <a href="index.html" class="logo">
+                    <i class="fas fa-tractor"></i>FarmTrack
+                </a>
+                <p>The most trusted digital livestock registry for modern farmers. Protecting assets through digital innovation.</p>
+                <div class="footer-social">
+                    <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                </div>
             </div>
             <div class="footer-links">
                 <h4>Platform</h4>
                 <ul>
-                    <li><a href="#">Dashboard</a></li>
-                    <li><a href="#">Health Logs</a></li>
-                    <li><a href="#">Marketplace</a></li>
-                    <li><a href="#">Analytics</a></li>
+                    <li><a href="/about">About Us</a></li>
+                    <li><a href="/support">Help Center</a></li>
+                    <li><a href="/privacy-policy">Privacy Policy</a></li>
                 </ul>
             </div>
             <div class="footer-links">
                 <h4>Contact</h4>
                 <ul>
-                    <li><a href="#">Help Center</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">Terms of Service</a></li>
                     <li><a href="mailto:support@farmtrack.com">support@farmtrack.com</a></li>
+                    <li><a href="#">Lovely Professional University</a></li>
+                    <li><a href="#">Phagwara, Punjab</a></li>
                 </ul>
             </div>
         </div>
         <div class="footer-bottom">
             <p>&copy; 2026 FarmTrack Global. Built for the future of agriculture.</p>
+            <p>Terms of Service &bull; Privacy Policy</p>
         </div>
     </footer>
 
@@ -709,6 +609,20 @@
             const navbar = document.getElementById('navbar');
             const menuToggle = document.getElementById('menuToggle');
             const revealElements = document.querySelectorAll('[data-reveal]');
+
+            // Toggle logic for Insights
+            document.querySelectorAll('.insight-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const item = header.parentElement;
+                    const isActive = item.classList.contains('active');
+                    
+                    document.querySelectorAll('.insight-item').forEach(el => el.classList.remove('active'));
+                    
+                    if (!isActive) {
+                        item.classList.add('active');
+                    }
+                });
+            });
 
             // Navigation Scroll Effect
             window.addEventListener('scroll', () => {
@@ -728,12 +642,16 @@
             const revealOnScroll = () => {
                 revealElements.forEach(el => {
                     const rect = el.getBoundingClientRect();
+                    // Reveals element when it is 10% inside the viewport from the bottom
                     const isVisible = rect.top <= (window.innerHeight * 0.9);
-                    if (isVisible) el.classList.add('revealed');
+                    if (isVisible) {
+                        el.classList.add('revealed');
+                    }
                 });
             };
 
             window.addEventListener('scroll', revealOnScroll);
+            // Initial check in case elements are already in view
             revealOnScroll();
         });
     </script>

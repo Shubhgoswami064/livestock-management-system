@@ -456,7 +456,8 @@
     </button>
     
     <div id="notif-dropdown" class="notification-dropdown">
-        <h4 style="margin-bottom: 1rem; font-size: 0.9rem;">Alerts & Tasks</h4>
+       <h4 style="margin-bottom: 1rem; font-size: 0.9rem;">Alerts & Tasks</h4>
+    <div id="notif-list"></div>
         <div class="notification-item">
             <div class="notif-icon" style="background: #fee2e2; color: #ef4444;"><i class="fas fa-syringe"></i></div>
             <div>
@@ -544,6 +545,7 @@
                     <!-- Activity Timeline -->
                     <div class="card">
                         <h3 style="font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem;">Recent Activity</h3>
+                            <div id="timeline-container"></div>
                         <div class="timeline-item">
                             <div class="timeline-dot" style="background: #046c4e;"></div>
                             <div class="timeline-content">
@@ -806,7 +808,158 @@ function hideSupportInfo() {
             }
 
         }
+// Sidebar
+document.getElementById('menu-btn').onclick = () => {
+    document.getElementById('sidebar').classList.toggle('collapsed');
+};
 
+// Notifications toggle
+
+
+bellBtn.addEventListener('click', (e) => {
+    notifDropdown.classList.toggle('active');
+    notifDot.style.display = 'none';
+    e.stopPropagation();
+});
+
+window.addEventListener('click', () => {
+    notifDropdown.classList.remove('active');
+});
+
+
+// ---------- LOAD ALL DATA ----------
+window.addEventListener('load', () => {
+    refreshHealthData();
+    loadNotifications();
+    fetchProfileAvatar();
+    initAnimations();
+});
+
+
+// ---------- HEALTH DATA ----------
+async function refreshHealthData() {
+    const userId = localStorage.getItem('userId');
+    if (!userId) return;
+
+    try {
+        const summary = await fetch('/api/health-summary', {
+            headers: { 'user-id': userId }
+        }).then(res => res.json());
+
+        const history = await fetch('/api/health-history', {
+            headers: { 'user-id': userId }
+        }).then(res => res.json());
+
+        updateStats(summary);
+        updateTable(history);
+        updateTimeline(history.slice(0, 4));
+
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+
+// ---------- UPDATE STATS ----------
+function updateStats(data) {
+    const stats = document.querySelectorAll('.stat-value');
+
+    stats[0].innerText = data.healthScore + '%';
+    stats[1].innerText = data.vaccinated;
+    stats[2].innerText = data.pending;
+    stats[3].innerText = data.alerts;
+
+    const ring = document.querySelector('.ring-fg');
+    const offset = 408 * (1 - data.healthScore / 100);
+    ring.style.strokeDashoffset = offset;
+
+    document.querySelector('.score-value').innerText = data.healthScore + '%';
+}
+
+
+// ---------- TABLE ----------
+function updateTable(data) {
+    const tbody = document.querySelector('table tbody');
+
+    tbody.innerHTML = data.map(item => `
+        <tr>
+            <td>${new Date(item.date).toLocaleDateString()}</td>
+            <td><strong>${item.animal_id}</strong></td>
+            <td>${item.treatment}</td>
+            <td>${item.batch_number || 'N/A'}</td>
+            <td><span class="badge ${getStatusBadge(item.status)}">${item.status}</span></td>
+        </tr>
+    `).join('');
+}
+
+
+// ---------- TIMELINE ----------
+function updateTimeline(data) {
+    const container = document.getElementById('timeline-container');
+
+    container.innerHTML = data.map(item => `
+        <div class="timeline-item">
+            <div class="timeline-dot" style="background:${getTimelineColor(item.status)}"></div>
+            <div class="timeline-content">
+                <h4>${item.treatment} — ${item.animal_id}</h4>
+                <p>${item.status} • ${new Date(item.date).toLocaleDateString()}</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+
+// ---------- STATUS COLORS ----------
+function getTimelineColor(status) {
+    if (status === 'Completed') return '#046c4e';
+    if (status === 'Scheduled') return '#3b82f6';
+    if (status === 'In Progress') return '#d97706';
+    return '#ef4444';
+}
+
+function getStatusBadge(status) {
+    if (status === 'Completed') return 'badge-green';
+    if (status === 'Scheduled') return 'badge-blue';
+    return 'badge-orange';
+}
+
+
+// ---------- NOTIFICATIONS ----------
+async function loadNotifications() {
+    const userId = localStorage.getItem('userId');
+    if (!userId) return;
+
+    const data = await fetch('/api/notifications', {
+        headers: { 'user-id': userId }
+    }).then(res => res.json());
+
+    const container = document.getElementById('notif-list');
+
+    notifDot.style.display = data.length ? 'block' : 'none';
+
+    container.innerHTML = data.slice(0, 5).map(n => {
+        const s = getNotifStyle(n.type);
+
+        return `
+        <div class="notification-item">
+            <div class="notif-icon" style="background:${s.bg};color:${s.color}">
+                <i class="${s.icon}"></i>
+            </div>
+            <div>
+                <p style="font-size:0.8rem;font-weight:700">${n.message}</p>
+                <p style="font-size:0.7rem;opacity:0.7">${n.sub}</p>
+            </div>
+        </div>
+        `;
+    }).join('');
+}
+
+function getNotifStyle(type) {
+    if (type === 'alert') return { bg:'#fee2e2', color:'#ef4444', icon:'fas fa-exclamation-triangle' };
+    if (type === 'warning') return { bg:'#fef3c7', color:'#d97706', icon:'fas fa-clock' };
+    if (type === 'info') return { bg:'#dbeafe', color:'#1d4ed8', icon:'fas fa-notes-medical' };
+    return { bg:'#dcfce7', color:'#15803d', icon:'fas fa-check-circle' };
+}
         // ── Scroll Reveal Animations ──
         function initAnimations() {
             const observerOptions = {
