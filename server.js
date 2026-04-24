@@ -192,7 +192,11 @@ app.get('/api/get-health-records', async (req, res) => {
     if (error) return res.status(400).json({ error: error.message });
     res.json(data);
 });
-const PORT = 3000;
-app.listen(PORT, () => {
-    console.log(`🚀 Server: http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`🚀 Server: http://localhost:${PORT}`);
+    });
+}
+
+export default app;
