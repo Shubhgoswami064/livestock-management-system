@@ -22,7 +22,7 @@ app.get('/login_signup', (req, res) => {
 });
 
 // --- API AUTH ROUTES ---
-app.get('/', (req, res) => {
+app.get('/MainDash', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'MainDash.html'));
 });
 app.get('/about', (req, res) => {
