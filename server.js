@@ -203,9 +203,6 @@ app.get('/api/health-history', async (req, res) => {
     if (error) return res.status(400).json({ error: error.message });
     res.json(data);
 });
-
-<<<<<<< HEAD
-
 // --- HEALTH SUMMARY ---
 app.get('/api/health-summary', async (req, res) => {
     const userId = req.headers['user-id'];
@@ -278,7 +275,6 @@ app.get('/api/notifications', async (req, res) => {
 });
 if (process.env.NODE_ENV !== 'production')
      { const PORT = process.env.PORT || 3000; app.listen(PORT, () => { console.log(`🚀 Server: http://localhost:${PORT}`); }); }
-=======
 // -- support form --
 app.post('/api/support', async (req, res) => {
     const { name, registration_id, email, problem_type, message } = req.body;
@@ -301,5 +297,4 @@ app.post('/api/support', async (req, res) => {
     res.json({ success: true, message: "Query submitted successfully" });
 });
 
->>>>>>> e03c457ad16faa990702e7aed6004dcc14400755
 export default app;
