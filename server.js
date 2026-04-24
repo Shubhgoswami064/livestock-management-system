@@ -204,6 +204,7 @@ app.get('/api/health-history', async (req, res) => {
     res.json(data);
 });
 
+<<<<<<< HEAD
 
 // --- HEALTH SUMMARY ---
 app.get('/api/health-summary', async (req, res) => {
@@ -277,4 +278,28 @@ app.get('/api/notifications', async (req, res) => {
 });
 if (process.env.NODE_ENV !== 'production')
      { const PORT = process.env.PORT || 3000; app.listen(PORT, () => { console.log(`🚀 Server: http://localhost:${PORT}`); }); }
+=======
+// -- support form --
+app.post('/api/support', async (req, res) => {
+    const { name, registration_id, email, problem_type, message } = req.body;
+
+    const { data, error } = await supabase
+        .from('support_queries')
+        .insert([{
+            name,
+            registration_id,
+            email,
+            problem_type,
+            message
+        }]);
+
+    if (error) {
+        console.error("Supabase error:", error);
+        return res.status(400).json({ error: error.message });
+    }
+
+    res.json({ success: true, message: "Query submitted successfully" });
+});
+
+>>>>>>> e03c457ad16faa990702e7aed6004dcc14400755
 export default app;
