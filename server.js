@@ -22,10 +22,21 @@ app.get('/login_signup', (req, res) => {
 });
 
 // --- API AUTH ROUTES ---
-app.get('/MainDash', (req, res) => {
+app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'MainDash.html'));
 });
-
+app.get('/about', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'about.html'));
+});
+app.get('/support', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'support.html'));
+});
+app.get('/video', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'cow_video.mp4'));
+});
+app.get('/privacy-policy', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'privacyPolicy.html'));
+});
 // LOGIN API
 // LOGIN API
 // SIGNUP API
