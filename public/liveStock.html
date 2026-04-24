@@ -290,8 +290,8 @@
                             <p id="avg-temp" style="font-size: 1.5rem; font-weight: 800;">--</p>
                         </div>
                         <div class="mini-card">
-                            <p style="font-size: 0.65rem; font-weight: 800; color: #4b5563;">HYDRATION</p>
-                            <p id="avg-hydration" style="font-size: 1.5rem; font-weight: 800;">--</p>
+                            <p style="font-size: 0.65rem; font-weight: 800; color: #4b5563;">HEALTH INDEX</p>
+                            <p id="health-index-stat" style="font-size: 1.5rem; font-weight: 800;">--%</p>
                         </div>
                         <div class="mini-card">
                             <p style="font-size: 0.65rem; font-weight: 800; color: #4b5563;">ACTIVITY</p>
@@ -324,9 +324,9 @@
     <script>
         let herdChart;
 
-        function updateUIElements(data) {
+        async function updateUIElements(data) {
             const tempEl = document.getElementById('avg-temp');
-            const hydEl = document.getElementById('avg-hydration');
+            const hydEl = document.getElementById('health-index-stat');
             const actEl = document.getElementById('avg-activity');
 
             if (!data || data.length === 0) {
@@ -336,15 +336,61 @@
                 return;
             }
 
-            // Logic: Average vitals based on animal count with small random noise for "Live" effect
+            // Temperature and Activity are simulated for now
             const baseTemp = 101.2;
-            const baseHydration = 90;
             const baseActivity = 85;
-
-            // Update with dynamic values
             tempEl.innerText = (baseTemp + (Math.random() * 0.5)).toFixed(1) + "°F";
-            hydEl.innerText = Math.floor(baseHydration + (Math.random() * 5)) + "%";
             actEl.innerText = Math.floor(baseActivity + (Math.random() * 10)) + "%";
+
+            // Dynamically calculate Health Index
+            const totalAnimals = data.length;
+            try {
+                const userId = localStorage.getItem('userId');
+                const response = await fetch('/api/get-health-records', {
+                    headers: { 'user-id': userId || '' }
+                });
+                
+                if (response.ok) {
+                    const records = await response.json();
+                    const latestRecords = {};
+                    for (const record of records) {
+                        if (!latestRecords[record.animal_id]) {
+                            latestRecords[record.animal_id] = record;
+                        }
+                    }
+
+                    let unhealthyCount = 0;
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0); 
+
+                    for (const animalId in latestRecords) {
+                        const latestRecord = latestRecords[animalId];
+                        if (latestRecord.next_due) {
+                            const dueDate = new Date(latestRecord.next_due);
+                            if (dueDate < today) {
+                                unhealthyCount++;
+                            }
+                        }
+                    }
+
+                    const healthyCount = totalAnimals - unhealthyCount;
+                    const healthPercentage = Math.max(0, Math.round((healthyCount / totalAnimals) * 100));
+                    
+                    hydEl.innerText = `${healthPercentage}%`;
+                    if (healthPercentage < 50) {
+                        hydEl.style.color = '#ef4444';
+                    } else if (healthPercentage < 80) {
+                        hydEl.style.color = '#f59e0b';
+                    } else {
+                        hydEl.style.color = 'inherit';
+                    }
+                } else {
+                    hydEl.innerText = "--%";
+                }
+            } catch (error) {
+                console.error("Failed to load health index:", error);
+                hydEl.innerText = "--%";
+            }
         }
 
         function updateHerdChart(chartLabels = ['Livestock'], chartData = [1]) {
@@ -494,10 +540,28 @@ function hideSupportInfo() {
                 const tableBody = document.getElementById('registryTableBody');
 
                 if (response.ok && data.length > 0) {
-                    const breedCounts = {};
+                    const speciesCounts = {};
                     tableBody.innerHTML = data.map(item => {
                         const breed = item.breed || 'Unknown';
-                        breedCounts[breed] = (breedCounts[breed] || 0) + 1;
+                        
+                        // Use species from database, or infer from breed for older records
+                        let species = item.species;
+                        if (!species) {
+                            species = 'Cow'; // Default
+                            const breedLower = breed.toLowerCase();
+                            if (breedLower.includes('goat') || breedLower.includes('sheep')) {
+                                species = 'Goat';
+                            } else if (breedLower.includes('swine') || breedLower.includes('pig')) {
+                                species = 'Swine';
+                            }
+                        } else {
+                            // Standardize species strings from the dropdown
+                            if (species.includes('Cow') || species.includes('Cattle')) species = 'Cow';
+                            else if (species.includes('Goat') || species.includes('Sheep')) species = 'Goat';
+                            else if (species.includes('Swine')) species = 'Swine';
+                        }
+                        
+                        speciesCounts[species] = (speciesCounts[species] || 0) + 1;
 
                         return `<tr>
                             <td>${item.tag_id}</td>
@@ -508,7 +572,7 @@ function hideSupportInfo() {
                         </tr>`;
                     }).join('');
 
-                    updateHerdChart(Object.keys(breedCounts), Object.values(breedCounts));
+                    updateHerdChart(Object.keys(speciesCounts), Object.values(speciesCounts));
                     updateUIElements(data);
                 } else {
                     tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No livestock found.</td></tr>';

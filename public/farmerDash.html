@@ -396,9 +396,9 @@ html {
 
                 <div class="stat-grid reveal">
                     <div class="stat-card"><p class="stat-label">Total Livestock</p><h2 class="stat-value" id="totalLivestockStat">0</h2></div>
-                    <div class="stat-card"><p class="stat-label">Health Index</p><h2 class="stat-value" >98%</h2></div>
+                    <div class="stat-card"><p class="stat-label">Health Index</p><h2 class="stat-value" id="healthIndexStat">--%</h2></div>
                     <div class="stat-card"><p class="stat-label">Pending Schemes</p><h2 class="stat-value" style="color: #f97316;">03</h2></div>
-                    <div class="stat-card"><p class="stat-label">Active Alerts</p><h2 class="stat-value" style="color: #ef4444;">00</h2></div>
+                    <div class="stat-card"><p class="stat-label">Active Alerts</p><h2 class="stat-value" id="activeAlertsStat" style="color: #ef4444;">00</h2></div>
                 </div>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
@@ -474,6 +474,9 @@ html {
                     
                     // Update Total Livestock stat dynamically
                     document.getElementById('totalLivestockStat').textContent = animalData.length;
+                    
+                    // Now compute health index
+                    await calculateHealthIndex(animalData.length);
                 } else {
                     console.error('Failed to fetch livestock:', data.error);
                 }
@@ -481,6 +484,72 @@ html {
                 console.error('Error fetching livestock:', error);
             }
             renderAdaptiveUI();
+        }
+
+        async function calculateHealthIndex(totalAnimals) {
+            const healthIndexEl = document.getElementById('healthIndexStat');
+            if (totalAnimals === 0) {
+                healthIndexEl.textContent = '100%';
+                return;
+            }
+
+            try {
+                const userId = localStorage.getItem('userId');
+                const response = await fetch('/api/get-health-records', {
+                    headers: { 'user-id': userId || '' }
+                });
+                
+                if (!response.ok) return;
+                const records = await response.json();
+                
+                // Group by animal_id to find the latest record
+                const latestRecords = {};
+                for (const record of records) {
+                    if (!latestRecords[record.animal_id]) {
+                        // Because backend orders by date descending, the first one we see is the latest
+                        latestRecords[record.animal_id] = record;
+                    }
+                }
+
+                let unhealthyCount = 0;
+                const today = new Date();
+                // Set time to midnight for fair date comparison
+                today.setHours(0, 0, 0, 0); 
+
+                for (const animalId in latestRecords) {
+                    const latestRecord = latestRecords[animalId];
+                    if (latestRecord.next_due) {
+                        const dueDate = new Date(latestRecord.next_due);
+                        if (dueDate < today) {
+                            unhealthyCount++;
+                        }
+                    }
+                }
+
+                const healthyCount = totalAnimals - unhealthyCount;
+                const healthPercentage = Math.max(0, Math.round((healthyCount / totalAnimals) * 100));
+                
+                healthIndexEl.textContent = `${healthPercentage}%`;
+                
+                // Update color based on health
+                if (healthPercentage < 50) {
+                    healthIndexEl.style.color = '#ef4444'; // red
+                } else if (healthPercentage < 80) {
+                    healthIndexEl.style.color = '#f59e0b'; // orange
+                } else {
+                    healthIndexEl.style.color = 'inherit'; // default
+                }
+
+                // Update Active Alerts count
+                const activeAlertsEl = document.getElementById('activeAlertsStat');
+                if (activeAlertsEl) {
+                    activeAlertsEl.textContent = unhealthyCount < 10 ? `0${unhealthyCount}` : unhealthyCount;
+                    activeAlertsEl.style.color = unhealthyCount > 0 ? '#ef4444' : '#64748b';
+                }
+            } catch (error) {
+                console.error('Error calculating health index:', error);
+                healthIndexEl.textContent = '--%';
+            }
         }
 
         // Sidebar Toggle

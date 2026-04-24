@@ -828,104 +828,121 @@ function hideSupportInfo() {
                 observer.observe(el);
             });
         }
-async function refreshHealthData() {
-    const userId = localStorage.getItem('userId');
-    if (!userId) return;
 
-    try {
-        // Fetch Summary Stats
-        const summaryRes = await fetch('/api/health-summary', { headers: { 'user-id': userId } });
-        const summary = await summaryRes.json();
-
-        // Update Stats UI
-        document.querySelectorAll('.stat-value')[0].innerText = `${summary.healthScore}%`;
-        document.querySelectorAll('.stat-value')[1].innerText = summary.vaccinated;
-        document.querySelectorAll('.stat-value')[2].innerText = summary.pending;
-        document.querySelectorAll('.stat-value')[3].innerText = summary.alerts;
-
-        // Update the Ring and Center Text
-        const ring = document.querySelector('.ring-fg');
-        const scoreText = document.querySelector('.score-value');
-        if(ring) {
-            const offset = 408 * (1 - (summary.healthScore / 100));
-            ring.style.strokeDashoffset = offset;
-            scoreText.innerText = `${summary.healthScore}%`;
-        }
-
-        // Fetch History (Table & Timeline)
-        const historyRes = await fetch('/api/health-history', { headers: { 'user-id': userId } });
-        const history = await historyRes.json();
-
-        updateTable(history);
-        updateTimeline(history.slice(0, 4)); // Only show last 4 in timeline
-
-    } catch (err) {
-        console.error("Failed to sync health data:", err);
-    }
-}
-
-function updateTable(data) {
-    const tbody = document.querySelector('table tbody');
-    tbody.innerHTML = data.map(item => `
-        <tr>
-            <td style="color: var(--text-muted); font-weight: 500;">
-                ${new Date(item.date).toLocaleDateString()}
-            </td>
-            <td style="font-weight: 700;">${item.animal_id}</td>
-            <td>
-                <div>${item.treatment}</div>
-                <small style="color: #9ca3af; font-size: 0.7rem;">Batch: ${item.batch_number || 'N/A'}</small>
-            </td>
-            <td style="color: var(--text-muted);">
-                Next Due: ${item.next_due ? new Date(item.next_due).toLocaleDateString() : 'N/A'}
-            </td>
-            <td style="text-align: right;">
-                <span class="badge ${getStatusBadge(item.status)}">${item.status}</span>
-            </td>
-        </tr>
-    `).join('');
-}
-
-function updateTimeline(data) {
-    const timeline = document.querySelector('.card h3').nextElementSibling; // Targets the container after the H3
-    // Note: You might want to wrap your timeline items in a specific ID container for easier selection
-}
-
-function getStatusBadge(status) {
-    if (status === 'Completed') return 'badge-green';
-    if (status === 'Scheduled') return 'badge-blue';
-    return 'badge-orange';
-}
 async function loadHealthDashboard() {
     const userId = localStorage.getItem('userId');
     if (!userId) return;
 
     try {
-        const response = await fetch('/api/get-health-records', {
-            headers: { 'user-id': userId }
-        });
-        const records = await response.json();
+        const [healthRes, livestockRes] = await Promise.all([
+            fetch('/api/get-health-records', { headers: { 'user-id': userId } }),
+            fetch('/api/livestock', { headers: { 'user-id': userId } })
+        ]);
 
-        // 1. Update Table
+        const records = await healthRes.json();
+        const livestock = await livestockRes.json();
+        const totalAnimals = livestock.length || 0;
+
+        // Group by animal_id to find latest record per animal
+        const latestRecords = {};
+        for (const record of records) {
+            if (!latestRecords[record.animal_id]) {
+                latestRecords[record.animal_id] = record;
+            }
+        }
+
+        let pendingCount = 0;
+        let vaccinatedCount = 0;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        for (const animalId in latestRecords) {
+            const latestRecord = latestRecords[animalId];
+            if (latestRecord.next_due) {
+                const dueDate = new Date(latestRecord.next_due);
+                if (dueDate < today) {
+                    pendingCount++;
+                    latestRecord.computedStatus = 'Overdue';
+                } else {
+                    vaccinatedCount++;
+                    latestRecord.computedStatus = 'Up to Date';
+                }
+            } else {
+                latestRecord.computedStatus = latestRecord.status;
+            }
+        }
+
+        const healthyCount = totalAnimals - pendingCount;
+        const healthScore = totalAnimals === 0 ? 100 : Math.max(0, Math.round((healthyCount / totalAnimals) * 100));
+
+        // 1. Update Stats UI
+        const statValues = document.querySelectorAll('.stat-value');
+        const statChanges = document.querySelectorAll('.stat-change');
+        
+        if (statValues.length >= 4) {
+            // Health Score
+            statValues[0].innerText = `${healthScore}%`;
+            statChanges[0].innerHTML = healthScore < 80 ? `<i class="fas fa-exclamation-triangle"></i> Needs attention` : `<i class="fas fa-check-circle"></i> Herd is healthy`;
+            statChanges[0].style.color = healthScore < 80 ? '#ef4444' : '#046c4e';
+
+            // Vaccinated
+            statValues[1].innerText = vaccinatedCount;
+            statChanges[1].innerHTML = `<i class="fas fa-shield-alt"></i> Currently protected`;
+
+            // Pending
+            statValues[2].innerText = pendingCount;
+            statChanges[2].innerHTML = pendingCount > 0 ? `<i class="fas fa-clock"></i> Action required` : `<i class="fas fa-check"></i> All caught up`;
+            statChanges[2].style.color = pendingCount > 0 ? '#d97706' : '#046c4e';
+
+            // Active Alerts
+            statValues[3].innerText = pendingCount; // Overdue items act as alerts
+            statChanges[3].innerHTML = pendingCount > 0 ? `<i class="fas fa-bell"></i> Overdue vaccinations` : `<i class="fas fa-bell-slash"></i> No active alerts`;
+            statChanges[3].style.color = pendingCount > 0 ? '#ef4444' : '#64748b';
+        }
+
+        // 2. Update Health Ring
+        const ring = document.querySelector('.ring-fg');
+        const scoreText = document.querySelector('.score-value');
+        if (ring) {
+            const offset = 408 * (1 - (healthScore / 100));
+            ring.style.strokeDashoffset = offset;
+            scoreText.innerText = `${healthScore}%`;
+        }
+
+        // 3. Update Table
         const tbody = document.querySelector('table tbody');
         if (tbody) {
-            tbody.innerHTML = records.map(record => `
+            tbody.innerHTML = records.map(record => {
+                let badgeClass = 'badge-green';
+                let displayStatus = record.status;
+                
+                // Override status if overdue
+                if (record.next_due) {
+                    const d = new Date(record.next_due);
+                    if (d < today) {
+                        displayStatus = 'Overdue';
+                        badgeClass = 'badge-orange';
+                        // if it's way overdue
+                        if ((today - d) > (30 * 24 * 60 * 60 * 1000)) badgeClass = 'badge-red'; 
+                    } else {
+                        displayStatus = 'Protected';
+                    }
+                }
+
+                return `
                 <tr>
                     <td>${new Date(record.date).toLocaleDateString()}</td>
                     <td><strong>${record.animal_id}</strong></td>
-                    <td>${record.treatment}</td>
-                    <td>Batch: ${record.batch_number || 'N/A'}</td>
-                    <td><span class="badge badge-green">${record.status}</span></td>
+                    <td>
+                        <div>${record.treatment}</div>
+                        <small style="color: #9ca3af; font-size: 0.7rem;">Batch: ${record.batch_number || 'N/A'}</small>
+                    </td>
+                    <td style="color: var(--text-muted);">
+                        Next Due: ${record.next_due ? new Date(record.next_due).toLocaleDateString() : 'N/A'}
+                    </td>
+                    <td style="text-align: right;"><span class="badge ${badgeClass}" style="${badgeClass === 'badge-red' ? 'background: #fee2e2; color: #ef4444;' : ''}">${displayStatus}</span></td>
                 </tr>
-            `).join('');
-        }
-
-        // 2. Update Stats (Example: Count total vaccinations)
-        const totalVaccines = records.length;
-        // Assuming your stat cards have specific IDs or indices
-        const statValues = document.querySelectorAll('.stat-value');
-        if (statValues.length > 1) {
-            statValues[1].innerText = totalVaccines; 
+            `}).join('');
         }
 
     } catch (err) {
@@ -933,14 +950,10 @@ async function loadHealthDashboard() {
     }
 }
 
-// Run on page load
-window.addEventListener('load', loadHealthDashboard);
-// Call this on load
-window.addEventListener('load', refreshHealthData);
         window.addEventListener('load', () => {
             initAnimations();
             fetchProfileAvatar();
-            loadHealthRecords();
+            loadHealthDashboard();
         });
     </script>
 </body>

@@ -250,6 +250,7 @@
                             submitBtn.disabled = true;
 
                             const tag_id = document.getElementById('tagInput').value;
+                            const species = document.getElementById('speciesInput').value;
                             const breed = document.getElementById('breedInput').value;
                             const weight = document.getElementById('weightInput').value;
                             const status = 'Healthy'; // Default status for new animal
@@ -266,7 +267,7 @@
                                         'Content-Type': 'application/json',
                                         'user-id': userId
                                     },
-                                    body: JSON.stringify({ tag_id, breed, weight, status })
+                                    body: JSON.stringify({ tag_id, species, breed, weight, status })
                                 });
                                 
                                 const data = await response.json();

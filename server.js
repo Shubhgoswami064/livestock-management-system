@@ -87,11 +87,11 @@ app.post('/api/livestock', async (req, res) => {
     const userId = req.headers['user-id'];
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
-    const { tag_id, breed, weight, status } = req.body;
+    const { tag_id, species, breed, weight, status } = req.body;
 
     const { data, error } = await supabase
         .from('livestock')
-        .insert([{ tag_id, breed, weight, farmer_id: userId, status }])
+        .insert([{ tag_id, species, breed, weight, farmer_id: userId, status }])
         .select();
 
     if (error) return res.status(400).json({ error: error.message });
