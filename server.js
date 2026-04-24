@@ -210,4 +210,26 @@ if (process.env.NODE_ENV !== 'production') {
     });
 }
 
+// -- support form --
+app.post('/api/support', async (req, res) => {
+    const { name, registration_id, email, problem_type, message } = req.body;
+
+    const { data, error } = await supabase
+        .from('support_queries')
+        .insert([{
+            name,
+            registration_id,
+            email,
+            problem_type,
+            message
+        }]);
+
+    if (error) {
+        console.error("Supabase error:", error);
+        return res.status(400).json({ error: error.message });
+    }
+
+    res.json({ success: true, message: "Query submitted successfully" });
+});
+
 export default app;

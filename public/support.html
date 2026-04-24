@@ -275,35 +275,45 @@
         </div>
 
         <form class="contact-form" id="supportForm">
-            <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" required placeholder="Enter your name">
-            </div>
-            <div class="form-group">
-                <label>Registration ID (if applicable)</label>
-                <input type="text" placeholder="e.g. FT-2026-PB-123">
-            </div>
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" placeholder="e.g. tanvi@gmail.com">
-            </div>
-            <div class="form-group">
-                <label>Problem Type</label>
-                <select class="search-input" style="padding: 10px; font-size: 0.9rem;">
-                    <option>Livestock Registration Issue</option>
-                    <option>Login/Account Access</option>
-                    <option>Scheme Eligibility Query</option>
-                    <option>Technical Bug</option>
-                    <option>Other</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>How can we help?</label>
-                <textarea rows="5" required placeholder="Describe your issue in detail..."></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Inquiry</button>
-            <p id="formStatus" style="margin-top: 15px; text-align: center; display: none; color: var(--accent); font-weight: 700;">✅ Inquiry submitted successfully! We will contact you soon.</p>
-        </form>
+    <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" name="name" required placeholder="Enter your name">
+    </div>
+
+    <div class="form-group">
+        <label>Registration ID (if applicable)</label>
+        <input type="text" name="registration_id" placeholder="e.g. FT-2026-PB-123">
+    </div>
+
+    <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" placeholder="e.g. tanvi@gmail.com">
+    </div>
+
+    <div class="form-group">
+        <label>Problem Type</label>
+        <select name="problem_type" class="search-input" style="padding: 10px; font-size: 0.9rem;">
+            <option>Livestock Registration Issue</option>
+            <option>Login/Account Access</option>
+            <option>Scheme Eligibility Query</option>
+            <option>Technical Bug</option>
+            <option>Other</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>How can we help?</label>
+        <textarea name="message" rows="5" required placeholder="Describe your issue in detail..."></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="width: 100%;">
+        Submit Inquiry
+    </button>
+
+    <p id="formStatus" style="margin-top: 15px; text-align: center; display: none; color: var(--accent); font-weight: 700;">
+        ✅ Inquiry submitted successfully! We will contact you soon.
+    </p>
+</form>
     </section>
 
     <footer>
@@ -347,14 +357,43 @@
         });
 
         // --- Form Logic ---
-        document.getElementById('supportForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            document.getElementById('formStatus').style.display = 'block';
-            e.target.reset();
-            setTimeout(() => {
-                document.getElementById('formStatus').style.display = 'none';
-            }, 5000);
+        document.getElementById('supportForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const form = e.target;
+
+    const formData = {
+        name: form.name.value,
+        registration_id: form.registration_id.value,
+        email: form.email.value,
+        problem_type: form.problem_type.value,
+        message: form.message.value
+    };
+
+    try {
+        const res = await fetch('/api/support', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
         });
+
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error);
+
+        document.getElementById('formStatus').style.display = 'block';
+        form.reset();
+
+        setTimeout(() => {
+            document.getElementById('formStatus').style.display = 'none';
+        }, 5000);
+
+    } catch (err) {
+        alert("Error: " + err.message);
+    }
+});
     </script>
 </body>
 </html>
