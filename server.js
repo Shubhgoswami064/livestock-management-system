@@ -189,8 +189,8 @@ app.post('/api/save-vaccination', async (req, res) => {
     res.json({ success: true, data });
 });
 
-// --- GET HEALTH RECORDS (For health.html) ---
-app.get('/api/get-health-records', async (req, res) => {
+// --- HEALTH HISTORY ---
+app.get('/api/health-history', async (req, res) => {
     const userId = req.headers['user-id'];
     if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
@@ -203,11 +203,78 @@ app.get('/api/get-health-records', async (req, res) => {
     if (error) return res.status(400).json({ error: error.message });
     res.json(data);
 });
-if (process.env.NODE_ENV !== 'production') {
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => {
-        console.log(`🚀 Server: http://localhost:${PORT}`);
-    });
-}
 
+
+// --- HEALTH SUMMARY ---
+app.get('/api/health-summary', async (req, res) => {
+    const userId = req.headers['user-id'];
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const { data, error } = await supabase
+        .from('health_records')
+        .select('*')
+        .eq('farmer_id', userId);
+
+    if (error) return res.status(400).json({ error: error.message });
+
+    const total = data.length;
+    const vaccinated = data.filter(r => r.status === 'Completed').length;
+    const pending = data.filter(r => r.status === 'Scheduled').length;
+    const alerts = data.filter(r => r.status === 'In Progress').length;
+
+    const healthScore = total === 0 ? 0 : Math.round((vaccinated / total) * 100);
+
+    res.json({ healthScore, vaccinated, pending, alerts });
+});
+
+
+// --- NOTIFICATIONS ---
+app.get('/api/notifications', async (req, res) => {
+    const userId = req.headers['user-id'];
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const { data, error } = await supabase
+        .from('health_records')
+        .select('*')
+        .eq('farmer_id', userId)
+        .order('date', { ascending: false });
+
+    if (error) return res.status(400).json({ error: error.message });
+
+    const today = new Date();
+
+    const notifications = data.map(record => {
+        const nextDue = record.next_due ? new Date(record.next_due) : null;
+
+        if (nextDue && nextDue < today && record.status !== 'Completed') {
+            return {
+                type: 'alert',
+                message: 'Overdue Vaccination',
+                sub: `${record.animal_id}: ${record.treatment}`
+            };
+        }
+
+        if (record.status === 'Scheduled') {
+            return {
+                type: 'warning',
+                message: 'Vaccination Scheduled',
+                sub: `${record.animal_id}: ${record.treatment}`
+            };
+        }
+
+        if (record.status === 'In Progress') {
+            return {
+                type: 'info',
+                message: 'Treatment Ongoing',
+                sub: `${record.animal_id}: ${record.treatment}`
+            };
+        }
+
+        return null;
+    });
+
+    res.json(notifications.filter(Boolean));
+});
+if (process.env.NODE_ENV !== 'production')
+     { const PORT = process.env.PORT || 3000; app.listen(PORT, () => { console.log(`🚀 Server: http://localhost:${PORT}`); }); }
 export default app;
