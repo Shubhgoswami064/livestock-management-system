@@ -173,6 +173,14 @@ app.post('/api/save-vaccination', async (req, res) => {
 
     if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dueDate = next_due ? new Date(next_due) : new Date(date);
+    dueDate.setHours(0, 0, 0, 0);
+    let calculatedStatus = 'Completed';
+    if (dueDate < today) calculatedStatus = 'Pending';
+    else if (dueDate > today) calculatedStatus = 'Scheduled';
+
     const { data, error } = await supabase
         .from('health_records')
         .insert([{ 
@@ -182,7 +190,7 @@ app.post('/api/save-vaccination', async (req, res) => {
             date, 
             next_due, 
             batch_number,
-            status: 'Completed' 
+            status: calculatedStatus 
         }]);
 
     if (error) return res.status(400).json({ error: error.message });
@@ -201,7 +209,19 @@ app.get('/api/health-history', async (req, res) => {
         .order('date', { ascending: false });
 
     if (error) return res.status(400).json({ error: error.message });
-    res.json(data);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const processedData = data.map(r => {
+        const dueDate = r.next_due ? new Date(r.next_due) : new Date(r.date);
+        dueDate.setHours(0, 0, 0, 0);
+        let dynamicStatus = 'Completed';
+        if (dueDate < today) dynamicStatus = 'Pending';
+        else if (dueDate > today) dynamicStatus = 'Scheduled';
+        return { ...r, status: dynamicStatus };
+    });
+
+    res.json(processedData);
 });
 // --- HEALTH SUMMARY ---
 app.get('/api/health-summary', async (req, res) => {
@@ -215,17 +235,56 @@ app.get('/api/health-summary', async (req, res) => {
 
     if (error) return res.status(400).json({ error: error.message });
 
-    const total = data.length;
-    const vaccinated = data.filter(r => r.status === 'Completed').length;
-    const pending = data.filter(r => r.status === 'Scheduled').length;
-    const alerts = data.filter(r => r.status === 'In Progress').length;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const processedData = data.map(r => {
+        const dueDate = r.next_due ? new Date(r.next_due) : new Date(r.date);
+        dueDate.setHours(0, 0, 0, 0);
+        let dynamicStatus = 'Completed';
+        if (dueDate < today) dynamicStatus = 'Pending';
+        else if (dueDate > today) dynamicStatus = 'Scheduled';
+        return { ...r, status: dynamicStatus };
+    });
 
-    const healthScore = total === 0 ? 0 : Math.round((vaccinated / total) * 100);
+    const total = processedData.length;
+    const vaccinated = processedData.filter(r => r.status === 'Completed').length;
+    const pending = processedData.filter(r => r.status === 'Scheduled' || r.status === 'Pending').length;
+    const alerts = processedData.filter(r => r.status === 'In Progress').length;
+
+    // Calculate healthScore dynamically like in farmerDash.html
+    const latestRecords = {};
+    for (const record of data) {
+        if (!latestRecords[record.animal_id]) {
+            latestRecords[record.animal_id] = record;
+        } else {
+            const existing = new Date(latestRecords[record.animal_id].date);
+            const current = new Date(record.date);
+            if (current > existing) {
+                latestRecords[record.animal_id] = record;
+            }
+        }
+    }
+
+    let unhealthyCount = 0;
+    let checkedAnimals = 0;
+    for (const animalId in latestRecords) {
+        checkedAnimals++;
+        const latestRecord = latestRecords[animalId];
+        if (latestRecord.next_due) {
+            const dueDate = new Date(latestRecord.next_due);
+            dueDate.setHours(0, 0, 0, 0);
+            if (dueDate < today) {
+                unhealthyCount++;
+            }
+        }
+    }
+
+    const healthScore = checkedAnimals === 0 ? 100 : Math.round(((checkedAnimals - unhealthyCount) / checkedAnimals) * 100);
 
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth();
     const currentYear = currentDate.getFullYear();
-    const priorData = data.filter(r => {
+    const priorData = processedData.filter(r => {
         const d = new Date(r.date);
         return d.getFullYear() < currentYear || (d.getFullYear() === currentYear && d.getMonth() < currentMonth);
     });
@@ -235,7 +294,7 @@ app.get('/api/health-summary', async (req, res) => {
     let trend = 0;
     if (priorTotal > 0 || total > 0) trend = healthScore - priorHealthScore;
 
-    const scheduledRecords = data.filter(r => r.status === 'Scheduled');
+    const scheduledRecords = processedData.filter(r => r.status === 'Scheduled');
     let nextUpcoming = null;
     if (scheduledRecords.length > 0) {
         scheduledRecords.sort((a,b) => new Date(a.date) - new Date(b.date));
@@ -335,17 +394,25 @@ app.get('/api/health-chart', async (req, res) => {
 
     // Group by month
     const monthly = {};
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     data.forEach(record => {
-        const d = new Date(record.date);
-        const month = d.toLocaleString('default', { month: 'short' });
+        const dueDate = record.next_due ? new Date(record.next_due) : new Date(record.date);
+        const month = dueDate.toLocaleString('default', { month: 'short' });
+        
+        dueDate.setHours(0, 0, 0, 0);
+        let dynamicStatus = 'Completed';
+        if (dueDate < today) dynamicStatus = 'Pending';
+        else if (dueDate > today) dynamicStatus = 'Scheduled';
 
         if (!monthly[month]) {
             monthly[month] = { total: 0, completed: 0 };
         }
 
         monthly[month].total++;
-        if (record.status === 'Completed') {
+        if (dynamicStatus === 'Completed') {
             monthly[month].completed++;
         }
     });
