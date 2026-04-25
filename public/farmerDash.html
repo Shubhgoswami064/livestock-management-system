@@ -469,7 +469,7 @@ html {
                         id: item.tag_id, 
                         breed: item.breed, 
                         weight: item.weight ? `${item.weight}kg` : '-', 
-                        status: item.status || 'Unknown'
+                        status: item.status || 'Healthy'
                     }));
                     
                     // Update Total Livestock stat dynamically
@@ -531,13 +531,17 @@ html {
                 const dueDate = new Date(latestRecord.next_due);
                 if (dueDate < today) {
                     unhealthyCount++;
+                    const animal = animalData.find(a => String(a.id) === String(animalId));
+                    if (animal) {
+                        animal.status = 'Unhealthy';
+                    }
                 }
             }
         }
 
-        const healthPercentage = checkedAnimals === 0
+        const healthPercentage = totalAnimals === 0
             ? 100
-            : Math.round(((checkedAnimals - unhealthyCount) / checkedAnimals) * 100);
+            : Math.round(((totalAnimals - unhealthyCount) / totalAnimals) * 100);
 
         healthIndexEl.textContent = `${healthPercentage}%`;
 

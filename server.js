@@ -173,13 +173,23 @@ app.post('/api/save-vaccination', async (req, res) => {
 
     if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
+    // Validate ownership
+    const { data: livestockData, error: livestockError } = await supabase
+        .from('livestock')
+        .select('tag_id')
+        .eq('farmer_id', userId)
+        .eq('tag_id', animal_id);
+        
+    if (livestockError || livestockData.length === 0) {
+        return res.status(403).json({ error: "You can only log vaccinations for your own livestock." });
+    }
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const dueDate = next_due ? new Date(next_due) : new Date(date);
-    dueDate.setHours(0, 0, 0, 0);
+    const eventDate = new Date(date);
+    eventDate.setHours(0, 0, 0, 0);
     let calculatedStatus = 'Completed';
-    if (dueDate < today) calculatedStatus = 'Pending';
-    else if (dueDate > today) calculatedStatus = 'Scheduled';
+    if (eventDate > today) calculatedStatus = 'Scheduled';
 
     const { data, error } = await supabase
         .from('health_records')
@@ -212,13 +222,34 @@ app.get('/api/health-history', async (req, res) => {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
+    const latestRecords = {};
+    for (const record of data) {
+        if (!latestRecords[record.animal_id]) {
+            latestRecords[record.animal_id] = record;
+        } else {
+            const existing = new Date(latestRecords[record.animal_id].date);
+            const current = new Date(record.date);
+            if (current > existing) {
+                latestRecords[record.animal_id] = record;
+            }
+        }
+    }
+
     const processedData = data.map(r => {
-        const dueDate = r.next_due ? new Date(r.next_due) : new Date(r.date);
-        dueDate.setHours(0, 0, 0, 0);
-        let dynamicStatus = 'Completed';
-        if (dueDate < today) dynamicStatus = 'Pending';
-        else if (dueDate > today) dynamicStatus = 'Scheduled';
-        return { ...r, status: dynamicStatus };
+        const recordDate = new Date(r.date);
+        recordDate.setHours(0,0,0,0);
+        
+        if (recordDate > today) return { ...r, status: 'Scheduled' };
+        
+        const isLatest = latestRecords[r.animal_id] === r;
+        if (isLatest && r.next_due) {
+            const dueDate = new Date(r.next_due);
+            dueDate.setHours(0,0,0,0);
+            if (dueDate < today) return { ...r, status: 'Pending' };
+        }
+        
+        return { ...r, status: 'Completed' };
     });
 
     res.json(processedData);
@@ -233,17 +264,45 @@ app.get('/api/health-summary', async (req, res) => {
         .select('*')
         .eq('farmer_id', userId);
 
+    const { count: totalLivestock } = await supabase
+        .from('livestock')
+        .select('*', { count: 'exact', head: true })
+        .eq('farmer_id', userId);
+        
+    const totalAnimals = totalLivestock || 0;
+
     if (error) return res.status(400).json({ error: error.message });
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
+    const latestRecordsSummary = {};
+    for (const record of data) {
+        if (!latestRecordsSummary[record.animal_id]) {
+            latestRecordsSummary[record.animal_id] = record;
+        } else {
+            const existing = new Date(latestRecordsSummary[record.animal_id].date);
+            const current = new Date(record.date);
+            if (current > existing) {
+                latestRecordsSummary[record.animal_id] = record;
+            }
+        }
+    }
+
     const processedData = data.map(r => {
-        const dueDate = r.next_due ? new Date(r.next_due) : new Date(r.date);
-        dueDate.setHours(0, 0, 0, 0);
-        let dynamicStatus = 'Completed';
-        if (dueDate < today) dynamicStatus = 'Pending';
-        else if (dueDate > today) dynamicStatus = 'Scheduled';
-        return { ...r, status: dynamicStatus };
+        const recordDate = new Date(r.date);
+        recordDate.setHours(0,0,0,0);
+        
+        if (recordDate > today) return { ...r, status: 'Scheduled' };
+        
+        const isLatest = latestRecordsSummary[r.animal_id] === r;
+        if (isLatest && r.next_due) {
+            const dueDate = new Date(r.next_due);
+            dueDate.setHours(0,0,0,0);
+            if (dueDate < today) return { ...r, status: 'Pending' };
+        }
+        
+        return { ...r, status: 'Completed' };
     });
 
     const total = processedData.length;
@@ -266,9 +325,7 @@ app.get('/api/health-summary', async (req, res) => {
     }
 
     let unhealthyCount = 0;
-    let checkedAnimals = 0;
     for (const animalId in latestRecords) {
-        checkedAnimals++;
         const latestRecord = latestRecords[animalId];
         if (latestRecord.next_due) {
             const dueDate = new Date(latestRecord.next_due);
@@ -279,7 +336,7 @@ app.get('/api/health-summary', async (req, res) => {
         }
     }
 
-    const healthScore = checkedAnimals === 0 ? 100 : Math.round(((checkedAnimals - unhealthyCount) / checkedAnimals) * 100);
+    const healthScore = totalAnimals === 0 ? 100 : Math.round(((totalAnimals - unhealthyCount) / totalAnimals) * 100);
 
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth();
@@ -303,7 +360,7 @@ app.get('/api/health-summary', async (req, res) => {
         nextUpcoming = { treatment: nextRecord.treatment, count: sameBatch.length, date: nextRecord.date };
     }
 
-    res.json({ healthScore, vaccinated, pending, alerts, trend, nextUpcoming });
+    res.json({ healthScore, vaccinated, pending, alerts: unhealthyCount, trend, nextUpcoming });
 });
 
 
@@ -401,29 +458,31 @@ app.get('/api/health-chart', async (req, res) => {
     data.forEach(record => {
         const recordDate = new Date(record.date);
         const month = recordDate.toLocaleString('default', { month: 'short' });
-        
-        const dueDate = record.next_due ? new Date(record.next_due) : new Date(record.date);
-        dueDate.setHours(0, 0, 0, 0);
-        let dynamicStatus = 'Completed';
-        if (dueDate < today) dynamicStatus = 'Pending';
-        else if (dueDate > today) dynamicStatus = 'Scheduled';
 
         if (!monthly[month]) {
             monthly[month] = { total: 0, completed: 0 };
         }
 
         monthly[month].total++;
-        if (dynamicStatus !== 'Pending') {
+        if (record.status !== 'Pending') {
             monthly[month].completed++;
         }
     });
 
+    const { count: totalLivestock } = await supabase
+        .from('livestock')
+        .select('*', { count: 'exact', head: true })
+        .eq('farmer_id', userId);
+        
+    const totalAnimals = totalLivestock || 0;
+
     // Convert to array
     const result = Object.keys(monthly).map(month => {
         const m = monthly[month];
+        // Calculate coverage against total herd size
         return {
             month,
-            coverage: m.total === 0 ? 0 : Math.round((m.completed / m.total) * 100)
+            coverage: totalAnimals === 0 ? 0 : Math.min(100, Math.round((m.completed / totalAnimals) * 100))
         };
     });
 

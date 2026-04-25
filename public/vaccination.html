@@ -136,7 +136,9 @@
         <form id="vaccineForm">
             <div class="form-group">
                 <label>Animal Tag ID</label>
-                <input type="text" placeholder="e.g. A-901" required>
+                <select id="animalSelect" required>
+                    <option value="" disabled selected>Loading your livestock...</option>
+                </select>
             </div>
 
             <div class="form-group">
@@ -175,6 +177,25 @@
       // Set default date to today
 document.getElementById('currentDate').valueAsDate = new Date();
 
+window.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const userId = localStorage.getItem('userId');
+        const res = await fetch('/api/livestock', { headers: { 'user-id': userId } });
+        const livestock = await res.json();
+        
+        const animalSelect = document.getElementById('animalSelect');
+        if (res.ok && livestock.length > 0) {
+            animalSelect.innerHTML = '<option value="" disabled selected>Select an Animal</option>' + 
+                livestock.map(a => `<option value="${a.tag_id}">${a.tag_id} (${a.breed || 'Unknown'})</option>`).join('');
+        } else {
+            animalSelect.innerHTML = '<option value="" disabled selected>No livestock found</option>';
+        }
+    } catch(e) {
+        console.error(e);
+        document.getElementById('animalSelect').innerHTML = '<option value="" disabled selected>Error loading</option>';
+    }
+});
+
 // Handle Form Submission
 document.getElementById('vaccineForm').onsubmit = async (e) => {
     e.preventDefault();
@@ -182,8 +203,8 @@ document.getElementById('vaccineForm').onsubmit = async (e) => {
     const successMsg = document.getElementById('success');
 
     const formData = {
-        animal_id: e.target.querySelector('input[placeholder="e.g. A-901"]').value,
-        treatment: e.target.querySelector('select').value,
+        animal_id: document.getElementById('animalSelect').value,
+        treatment: e.target.querySelector('select:not(#animalSelect)').value,
         date: document.getElementById('currentDate').value,
         next_due: e.target.querySelectorAll('input[type="date"]')[1].value,
         batch_number: e.target.querySelector('input[placeholder="B-882-90"]').value
