@@ -486,71 +486,82 @@ html {
             renderAdaptiveUI();
         }
 
-        async function calculateHealthIndex(totalAnimals) {
-            const healthIndexEl = document.getElementById('healthIndexStat');
-            if (totalAnimals === 0) {
-                healthIndexEl.textContent = '100%';
-                return;
-            }
+       async function calculateHealthIndex(totalAnimals) {
+    const healthIndexEl = document.getElementById('healthIndexStat');
 
-            try {
-                const userId = localStorage.getItem('userId');
-                const response = await fetch('/api/get-health-records', {
-                    headers: { 'user-id': userId || '' }
-                });
-                
-                if (!response.ok) return;
-                const records = await response.json();
-                
-                // Group by animal_id to find the latest record
-                const latestRecords = {};
-                for (const record of records) {
-                    if (!latestRecords[record.animal_id]) {
-                        // Because backend orders by date descending, the first one we see is the latest
-                        latestRecords[record.animal_id] = record;
-                    }
-                }
+    if (totalAnimals === 0) {
+        healthIndexEl.textContent = '100%';
+        return;
+    }
 
-                let unhealthyCount = 0;
-                const today = new Date();
-                // Set time to midnight for fair date comparison
-                today.setHours(0, 0, 0, 0); 
+    try {
+        const userId = localStorage.getItem('userId');
+        const response = await fetch('/api/get-health-records', {
+            headers: { 'user-id': userId || '' }
+        });
 
-                for (const animalId in latestRecords) {
-                    const latestRecord = latestRecords[animalId];
-                    if (latestRecord.next_due) {
-                        const dueDate = new Date(latestRecord.next_due);
-                        if (dueDate < today) {
-                            unhealthyCount++;
-                        }
-                    }
-                }
+        // ✅ FIX 1: Handle API failure
+        if (!response.ok) {
+            healthIndexEl.textContent = '100%';
+            return;
+        }
 
-                const healthyCount = totalAnimals - unhealthyCount;
-                const healthPercentage = Math.max(0, Math.round((healthyCount / totalAnimals) * 100));
-                
-                healthIndexEl.textContent = `${healthPercentage}%`;
-                
-                // Update color based on health
-                if (healthPercentage < 50) {
-                    healthIndexEl.style.color = '#ef4444'; // red
-                } else if (healthPercentage < 80) {
-                    healthIndexEl.style.color = '#f59e0b'; // orange
-                } else {
-                    healthIndexEl.style.color = 'inherit'; // default
-                }
+        const records = await response.json();
 
-                // Update Active Alerts count
-                const activeAlertsEl = document.getElementById('activeAlertsStat');
-                if (activeAlertsEl) {
-                    activeAlertsEl.textContent = unhealthyCount < 10 ? `0${unhealthyCount}` : unhealthyCount;
-                    activeAlertsEl.style.color = unhealthyCount > 0 ? '#ef4444' : '#64748b';
-                }
-            } catch (error) {
-                console.error('Error calculating health index:', error);
-                healthIndexEl.textContent = '--%';
+        // Get latest record per animal
+        const latestRecords = {};
+        for (const record of records) {
+            if (!latestRecords[record.animal_id]) {
+                latestRecords[record.animal_id] = record;
             }
         }
+
+        // ✅ FIX 2: Improved calculation
+        let unhealthyCount = 0;
+        let checkedAnimals = 0;
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        for (const animalId in latestRecords) {
+            checkedAnimals++;
+            const latestRecord = latestRecords[animalId];
+
+            if (latestRecord.next_due) {
+                const dueDate = new Date(latestRecord.next_due);
+                if (dueDate < today) {
+                    unhealthyCount++;
+                }
+            }
+        }
+
+        const healthPercentage = checkedAnimals === 0
+            ? 100
+            : Math.round(((checkedAnimals - unhealthyCount) / checkedAnimals) * 100);
+
+        healthIndexEl.textContent = `${healthPercentage}%`;
+
+        // ✅ Color logic
+        if (healthPercentage < 50) {
+            healthIndexEl.style.color = '#ef4444';
+        } else if (healthPercentage < 80) {
+            healthIndexEl.style.color = '#f59e0b';
+        } else {
+            healthIndexEl.style.color = 'inherit';
+        }
+
+        // ✅ Active Alerts update (kept from your logic)
+        const activeAlertsEl = document.getElementById('activeAlertsStat');
+        if (activeAlertsEl) {
+            activeAlertsEl.textContent = unhealthyCount < 10 ? `0${unhealthyCount}` : unhealthyCount;
+            activeAlertsEl.style.color = unhealthyCount > 0 ? '#ef4444' : '#64748b';
+        }
+
+    } catch (error) {
+        console.error('Error calculating health index:', error);
+        healthIndexEl.textContent = '--%';
+    }
+}
 
         // Sidebar Toggle
         const menuBtn = document.getElementById('menu-btn');

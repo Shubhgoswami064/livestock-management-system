@@ -344,53 +344,65 @@
 
             // Dynamically calculate Health Index
             const totalAnimals = data.length;
-            try {
-                const userId = localStorage.getItem('userId');
-                const response = await fetch('/api/get-health-records', {
-                    headers: { 'user-id': userId || '' }
-                });
-                
-                if (response.ok) {
-                    const records = await response.json();
-                    const latestRecords = {};
-                    for (const record of records) {
-                        if (!latestRecords[record.animal_id]) {
-                            latestRecords[record.animal_id] = record;
-                        }
-                    }
+           try {
+    const userId = localStorage.getItem('userId');
+    const response = await fetch('/api/get-health-records', {
+        headers: { 'user-id': userId || '' }
+    });
 
-                    let unhealthyCount = 0;
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0); 
+    // ✅ FIX 1: Handle API failure
+    if (!response.ok) {
+        hydEl.innerText = "100%";
+        return;
+    }
 
-                    for (const animalId in latestRecords) {
-                        const latestRecord = latestRecords[animalId];
-                        if (latestRecord.next_due) {
-                            const dueDate = new Date(latestRecord.next_due);
-                            if (dueDate < today) {
-                                unhealthyCount++;
-                            }
-                        }
-                    }
+    const records = await response.json();
 
-                    const healthyCount = totalAnimals - unhealthyCount;
-                    const healthPercentage = Math.max(0, Math.round((healthyCount / totalAnimals) * 100));
-                    
-                    hydEl.innerText = `${healthPercentage}%`;
-                    if (healthPercentage < 50) {
-                        hydEl.style.color = '#ef4444';
-                    } else if (healthPercentage < 80) {
-                        hydEl.style.color = '#f59e0b';
-                    } else {
-                        hydEl.style.color = 'inherit';
-                    }
-                } else {
-                    hydEl.innerText = "--%";
-                }
-            } catch (error) {
-                console.error("Failed to load health index:", error);
-                hydEl.innerText = "--%";
+    const latestRecords = {};
+    for (const record of records) {
+        if (!latestRecords[record.animal_id]) {
+            latestRecords[record.animal_id] = record;
+        }
+    }
+
+    // ✅ FIX 2: Improved health calculation
+    let unhealthyCount = 0;
+    let checkedAnimals = 0;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    for (const animalId in latestRecords) {
+        checkedAnimals++;
+        const latestRecord = latestRecords[animalId];
+
+        if (latestRecord.next_due) {
+            const dueDate = new Date(latestRecord.next_due);
+            if (dueDate < today) {
+                unhealthyCount++;
             }
+        }
+    }
+
+    const healthPercentage = checkedAnimals === 0
+        ? 100
+        : Math.round(((checkedAnimals - unhealthyCount) / checkedAnimals) * 100);
+
+    hydEl.innerText = `${healthPercentage}%`;
+
+    // ✅ Color logic (same as before)
+    if (healthPercentage < 50) {
+        hydEl.style.color = '#ef4444';
+    } else if (healthPercentage < 80) {
+        hydEl.style.color = '#f59e0b';
+    } else {
+        hydEl.style.color = 'inherit';
+    }
+
+} catch (error) {
+    console.error("Failed to load health index:", error);
+    hydEl.innerText = "--%";
+}
         }
 
         function updateHerdChart(chartLabels = ['Livestock'], chartData = [1]) {

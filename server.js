@@ -222,7 +222,29 @@ app.get('/api/health-summary', async (req, res) => {
 
     const healthScore = total === 0 ? 0 : Math.round((vaccinated / total) * 100);
 
-    res.json({ healthScore, vaccinated, pending, alerts });
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+    const priorData = data.filter(r => {
+        const d = new Date(r.date);
+        return d.getFullYear() < currentYear || (d.getFullYear() === currentYear && d.getMonth() < currentMonth);
+    });
+    const priorTotal = priorData.length;
+    const priorVaccinated = priorData.filter(r => r.status === 'Completed').length;
+    const priorHealthScore = priorTotal === 0 ? 0 : Math.round((priorVaccinated / priorTotal) * 100);
+    let trend = 0;
+    if (priorTotal > 0 || total > 0) trend = healthScore - priorHealthScore;
+
+    const scheduledRecords = data.filter(r => r.status === 'Scheduled');
+    let nextUpcoming = null;
+    if (scheduledRecords.length > 0) {
+        scheduledRecords.sort((a,b) => new Date(a.date) - new Date(b.date));
+        const nextRecord = scheduledRecords[0];
+        const sameBatch = scheduledRecords.filter(r => r.date === nextRecord.date && r.treatment === nextRecord.treatment);
+        nextUpcoming = { treatment: nextRecord.treatment, count: sameBatch.length, date: nextRecord.date };
+    }
+
+    res.json({ healthScore, vaccinated, pending, alerts, trend, nextUpcoming });
 });
 
 
@@ -338,6 +360,42 @@ app.get('/api/health-chart', async (req, res) => {
     });
 
     res.json(result);
+});
+app.get('/api/get-health-records', async (req, res) => {
+    const userId = req.headers['user-id'];
+
+    const { data, error } = await supabase
+        .from('health_records')
+        .select('*')
+        .eq('farmer_id', userId)   // ✅ IMPORTANT
+        .order('created_at', { ascending: false });
+
+    if (error) return res.status(500).json({ error: error.message });
+
+    res.json(data);
+});
+app.post('/api/health-records', async (req, res) => {
+    const userId = req.headers['user-id']; // ✅ ADD THIS
+
+    const { animal_id, next_due, notes, status, treatment, date } = req.body;
+
+    const { data, error } = await supabase
+        .from('health_records')
+        .insert([
+            {
+                animal_id,
+                next_due,
+                notes,
+                treatment: treatment || notes || 'Checkup',
+                status: status || 'Scheduled',
+                date: date || new Date().toISOString(),
+                farmer_id: userId   // ✅ CRITICAL FIX
+            }
+        ]);
+
+    if (error) return res.status(500).json({ error: error.message });
+
+    res.json(data);
 });
 if (process.env.NODE_ENV !== 'production')
      { const PORT = process.env.PORT || 3000; app.listen(PORT, () => { console.log(`🚀 Server: http://localhost:${PORT}`); }); }
