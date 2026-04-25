@@ -383,7 +383,7 @@ app.get('/api/health-chart', async (req, res) => {
 
     const { data, error } = await supabase
         .from('health_records')
-        .select('date, status')
+        .select('date, status, next_due')
         .eq('farmer_id', userId)
         .order('date', { ascending: true });
 
@@ -399,9 +399,10 @@ app.get('/api/health-chart', async (req, res) => {
     today.setHours(0, 0, 0, 0);
 
     data.forEach(record => {
-        const dueDate = record.next_due ? new Date(record.next_due) : new Date(record.date);
-        const month = dueDate.toLocaleString('default', { month: 'short' });
+        const recordDate = new Date(record.date);
+        const month = recordDate.toLocaleString('default', { month: 'short' });
         
+        const dueDate = record.next_due ? new Date(record.next_due) : new Date(record.date);
         dueDate.setHours(0, 0, 0, 0);
         let dynamicStatus = 'Completed';
         if (dueDate < today) dynamicStatus = 'Pending';
@@ -412,7 +413,7 @@ app.get('/api/health-chart', async (req, res) => {
         }
 
         monthly[month].total++;
-        if (dynamicStatus === 'Completed') {
+        if (dynamicStatus !== 'Pending') {
             monthly[month].completed++;
         }
     });
