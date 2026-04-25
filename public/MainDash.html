@@ -381,6 +381,8 @@
 
         /* Hero Card */
         .hero-card {
+            text-decoration: none;
+            color: inherit;
             background: rgba(59, 58, 54, 0.88);
             backdrop-filter: blur(4px);
             border-radius: 24px;
@@ -393,6 +395,13 @@
             justify-content: center;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
+        .hero-card h1 a,
+.hero-card h1 a:visited,
+.hero-card h1 a:hover,
+.hero-card h1 a:active {
+    color: #fffaf0; /* same as your h1 */
+    text-decoration: none;
+}
 
         .hero-card::before {
             display: none;
@@ -928,10 +937,10 @@
 
                     <!-- Hero Card -->
                     <div class="hero-card reveal delay-1">
-                        <p class="tag">— NATIONAL DIGITAL INFRASTRUCTURE</p>
-                        <h1>2024 Livestock<br>Census Portal</h1>
-                        <p class="hero-desc">Contributing to the world's largest livestock database through
-                            high-precision AI tracking and verified registration.</p>
+                        <p class="tag">— NATIONAL CENSUS PORTAL</p>
+                        <h1 style="text-decoration: none;"><a href="https://bharatpashudhan.ndlm.co.in/">Bharat Pashudhan</a></h1>
+                        <p class="hero-desc">The Livestock sector has a unique combination of being the
+                             backbone of the rural livelihood while also showing consistent growth and export potential.</p>
                     </div>
                 </div>
 
@@ -1079,19 +1088,47 @@
             win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
         }
 
-        function handleChat(e) {
-            if (e.key === 'Enter') {
-                const input = document.getElementById('chatInput');
-                const body = document.getElementById('chatBody');
-                if (!input.value.trim()) return;
-                body.innerHTML += `<div class="msg user">${input.value}</div>`;
-                setTimeout(() => {
-                    body.innerHTML += `<div class="msg bot">Processing your query about livestock census...</div>`;
-                    body.scrollTop = body.scrollHeight;
-                }, 600);
-                input.value = "";
-            }
+        async function handleChat(e) {
+    if (e.key === 'Enter') {
+        const input = document.getElementById('chatInput');
+        const body = document.getElementById('chatBody');
+        const message = input.value.trim();
+
+        if (!message) return;
+
+        // Show user message
+        body.innerHTML += `<div class="msg user">${message}</div>`;
+        input.value = "";
+        body.scrollTop = body.scrollHeight;
+
+        // Show loading message
+        body.innerHTML += `<div class="msg bot">Thinking...</div>`;
+        body.scrollTop = body.scrollHeight;
+
+        try {
+            const res = await fetch('/api/chat', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ message })
+            });
+
+            const data = await res.json();
+
+            // Remove "Thinking..."
+            const msgs = document.querySelectorAll(".msg.bot");
+            msgs[msgs.length - 1].remove();
+
+            // Show real AI reply
+            body.innerHTML += `<div class="msg bot">${data.reply || data.error || "No response from AI"}</div>`;
+            body.scrollTop = body.scrollHeight;
+
+        } catch (err) {
+            body.innerHTML += `<div class="msg bot">Something broke. Not surprising.</div>`;
         }
+    }
+}
 const searchInput = document.getElementById('mapSearch');
 const dropdown = document.getElementById('search-dropdown');
 
@@ -1180,48 +1217,7 @@ window.addEventListener('click', (e) => {
                 }
             });
         });
-        const botKnowledge = {
-            "subsidy": "Ah, looking for the government's help? The National Livestock Mission is your best bet! It covers up to 50% of costs for goats and poultry. Check the Schemes section for the link!",
-            "vaccination": "Keeping them healthy is key! The LHDCP provides free vaccinations for FMD. Have you checked your local vet schedule lately?",
-            "loan": "If you're thinking big, the AHIDF offers subsidized loans for infrastructure. Perfect for setting up that milk chilling unit you've been dreaming of!",
-            "cow": "Cows are the backbone of the farm! Under the Rashtriya Gokul Mission, you can get help with breed improvement. Better breeds = more milk!",
-            "dung": "Did you know in Chhattisgarh they actually buy cow dung? It's called the Godhan Nyay Yojana. Turning waste into wealth—literally!",
-            "hi": "Hello there, Farmer! I'm your LiveTrack assistant. I can help you with census data, government schemes, or just talk about animal health. What's on your mind today?",
-            "hello": "Hello! Ready to grow your farm today? Ask me about subsidies or animal registration!"
-        };
-
-        function handleChat(e) {
-            if (e.key === 'Enter') {
-                const input = document.getElementById('chatInput');
-                const body = document.getElementById('chatBody');
-                const userMsg = input.value.trim().toLowerCase();
-
-                if (!userMsg) return;
-
-                // Add User Message
-                body.innerHTML += `<div class="msg user">${input.value}</div>`;
-                input.value = "";
-
-                // Auto-scroll
-                body.scrollTop = body.scrollHeight;
-
-                // Artificial "Thinking" Delay
-                setTimeout(() => {
-                    let response = "That's an interesting point! While I'm still learning the specifics of that, I can definitely tell you more about National Livestock Schemes or how to register your 12 animals. Want to try a keyword like 'subsidy' or 'vaccine'?";
-
-                    // Keyword Matching Logic
-                    for (let key in botKnowledge) {
-                        if (userMsg.includes(key)) {
-                            response = botKnowledge[key];
-                            break;
-                        }
-                    }
-
-                    body.innerHTML += `<div class="msg bot">${response}</div>`;
-                    body.scrollTop = body.scrollHeight;
-                }, 800);
-            }
-        }
+        
         function initAnimations() {
             console.log("Animation Engine Started...");
 

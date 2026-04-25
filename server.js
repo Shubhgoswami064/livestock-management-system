@@ -400,3 +400,68 @@ app.post('/api/health-records', async (req, res) => {
 if (process.env.NODE_ENV !== 'production')
      { const PORT = process.env.PORT || 3000; app.listen(PORT, () => { console.log(`🚀 Server: http://localhost:${PORT}`); }); }
 export default app;
+
+
+//chatbot
+
+import dotenv from "dotenv";
+dotenv.config();
+import axios from "axios";
+
+app.post("/api/chat", async (req, res) => {
+    try {
+        const { message } = req.body;
+
+        const response = await axios.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            {
+                model: "llama-3.1-8b-instant",
+                messages: [
+                    {
+                        
+  role: "system",
+  content: `
+You are an expert AI assistant for Indian farmers.
+
+Rules:
+- NEVER say "I'm still learning" or "I don't know".
+- ALWAYS give a useful, direct answer.
+- If exact data is unknown, give the latest known schemes or general guidance.
+- Be confident and informative.
+
+You help with:
+- government schemes (India)
+- livestock management
+- vaccination
+- subsidies
+- farming guidance
+
+Keep answers simple, clear, and practical.
+`
+
+                    },
+                    {
+                        role: "user",
+                        content: message
+                    }
+                ]
+            },
+            {
+                headers: {
+                    "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        console.log("AI RAW RESPONSE:", response.data);
+
+        res.json({
+            reply: response.data.choices[0].message.content
+        });
+
+    } catch (error) {
+        console.error(error.response?.data || error.message);
+        res.status(500).json({ error: "AI failed. Try again." });
+    }
+});
