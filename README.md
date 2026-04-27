@@ -212,3 +212,4 @@ POST /api/support → Submit support query
 * Nishita
 * Tanvi
 
+## Deployed Link of Project - https://livestock-management-system-gamma.vercel.app/
