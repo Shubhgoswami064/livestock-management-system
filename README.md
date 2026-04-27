@@ -43,7 +43,7 @@ This project addresses these challenges by providing a digital platform for mana
 
 
 
-## 📂 Project Structure
+## Project Structure
 ```
 livestock-management-system/
 │
@@ -88,7 +88,7 @@ livestock-management-system/
 ```
 
 
-### 🧠 Notes
+### Notes
 
 * All frontend pages are inside the `public/` folder
 * `index.html` is served as the root landing page
@@ -212,4 +212,4 @@ POST /api/support → Submit support query
 * Nishita
 * Tanvi
 
-## Deployed Link of Project - https://livestock-management-system-gamma.vercel.app/
+# Deployed Link of Project - https://livestock-management-system-gamma.vercel.app/
